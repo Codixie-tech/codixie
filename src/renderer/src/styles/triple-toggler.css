@@ -1,0 +1,200 @@
+.black-font {
+  color: black !important;
+}
+
+html.dark .main-container {
+  background-color: var(--dark-gray-7);
+}
+
+.html.dark .switch {
+  background-color: var(--dark-gray-4);
+}
+
+.main-container {
+  display: inline-block;
+  vertical-align: middle;
+  width: 100%;
+  height: 50px;
+  border-radius: 14px;
+  background-color: var(--gray-4);
+  position: relative;
+}
+
+.switch {
+  height: 50px;
+  width: 33%;
+  border-radius: 14px;
+  position: absolute;
+  transition: ease-in;
+  background-color: var(--gray-1);
+  left: -1%;
+}
+
+/*---------------- LEFT ------------------- */
+.switch.left-to-center {
+  animation-name: leftToCenter;
+  animation-duration: 0.5s;
+}
+
+.switch.left-to-right {
+  animation-name: leftToRight;
+  animation-duration: 0.5s;
+}
+
+#left + label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  width: 33%;
+  border-radius: 100px;
+}
+
+#left:checked + label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  width: 33%;
+  border-radius: 100px;
+}
+
+@keyframes leftToCenter {
+  from {
+    left: 16.5%;
+  }
+  to {
+    left: calc(50%);
+  }
+}
+
+@keyframes leftToRight {
+  from {
+    left: 0%;
+  }
+  to {
+    left: calc(100% - 33%);
+  }
+}
+
+/* -------------------- center ------------------ */
+.switch.center-to-left {
+  animation-name: centerToLeft;
+  animation-duration: 0.5s;
+  animation-timing-function: ease-in-out;
+}
+
+.switch.center-to-right {
+  animation-name: centerToRight;
+  animation-duration: 0.5s;
+  animation-timing-function: ease-in-out;
+}
+
+.switch.center-position {
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+
+.center-label {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+
+#center + label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  width: 33%;
+  border-radius: 100px;
+  transform: translate(-50%, 0);
+}
+
+#center:checked + label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  width: 33%;
+  border-radius: 100px;
+}
+
+@keyframes centerToLeft {
+  from {
+    left: 50%;
+    transform: translate(-50%, 0);
+  }
+  to {
+    left: 0%;
+  }
+}
+
+@keyframes centerToRight {
+  from {
+    left: 50%;
+    transform: translate(-50%, 0);
+  }
+  to {
+    right: calc(100% - 33%);
+  }
+}
+
+/* ------------------- RIGHT ------------------- */
+.switch.right-to-left {
+  animation-name: rightToLeft;
+  animation-duration: 0.5s;
+  animation-timing-function: ease-in-out;
+}
+
+.switch.right-to-center {
+  animation-name: rightToCenter;
+  animation-duration: 0.5s;
+  animation-timing-function: ease-in-out;
+}
+
+.switch.right-position {
+  left: calc(100% - 33%);
+}
+
+.right-label {
+  position: absolute;
+  left: calc(100% - 33%);
+  transform: translate(-50%, 0);
+}
+
+#right + label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  width: 33%;
+  border-radius: 100px;
+}
+
+#right:checked + label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  width: 33%;
+  border-radius: 100px;
+}
+
+@keyframes rightToLeft {
+  from {
+    left: calc(100% - 33%);
+  }
+  to {
+    left: 0%;
+  }
+}
+
+@keyframes rightToCenter {
+  from {
+    left: calc(100% - 16.5%);
+  }
+  to {
+    left: calc(50%);
+  }
+}

@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .placeholder-padding::placeholder {
+    padding: 0 12px;
+  }
+}
+
+@layer base {
+  :root {
+    --radio-orange: #ffab00;
+    --radio-yellow: #ffea00;
+    --radio-blue: #00a4ff;
+    --radio-pink: #f274ff;
+    --radio-green: #00e93c;
+    --radio-red: #ff5752;
+    --radio-dark-blue: #000aff;
+
+    --red-1: #ffc2c2;
+    --red-2: #ff0202;
+
+    --gray-9: #212529;
+    --gray-8: #343a40;
+    --gray-7: #495057;
+    --gray-6: #6c757d;
+    --gray-5: #adb5bd;
+    --gray-4: #ced4da;
+    --gray-3: #dee2e6;
+    --gray-2: #e9ecef;
+    --gray-1: #f8f9fa;
+
+    --green-1: #ecfef2;
+    --green-2: #aef6c1;
+    --green-3: #008a2e;
+
+    --radius: 0.5rem;
+
+    --dark-gray-1: #e3e3e3;
+    --dark-gray-2: #d7d7d7;
+    --dark-gray-3: #9a9a9a;
+    --dark-gray-4: #7a7a7a;
+    --dark-gray-5: #646464;
+    --dark-gray-6: #464646;
+    --dark-gray-7: #343434;
+    --dark-gray-8: #232323;
+    --dark-gray-9: #111111;
+
+    --dark-green-1: #cddfd3;
+    --dark-green-2: #388c54;
+    --dark-green-3: #256139;
+
+    --dark-red-1: #ffcccc;
+    --dark-red-2: #ab1313;
+
+    --lime: #b7ff00;
+  }
+}
+
+@layer base {
+  * {
+    /* @apply border-border; */
+    min-width: 0px;
+  }
+
+  .cb-hightlight {
+    background-color: var(--red-2);
+  }
+
+  .hide-scroll {
+    scrollbar-width: none;
+  }
+
+  body {
+    @apply bg-gray-1 text-gray-7 dark:border-dark-gray-1 dark:bg-dark-gray-7 dark:text-dark-gray-1;
+  }
+}
+
+.monaco-editor,
+.monaco-diff-editor .synthetic-focus,
+.monaco-editor,
+.monaco-diff-editor [tabindex="0"]:focus,
+.monaco-editor,
+.monaco-diff-editor [tabindex="-1"]:focus,
+.monaco-editor,
+.monaco-diff-editor button:focus,
+.monaco-editor,
+.monaco-diff-editor input[type="button"]:focus,
+.monaco-editor,
+.monaco-diff-editor input[type="checkbox"]:focus,
+.monaco-editor,
+.monaco-diff-editor input[type="search"]:focus,
+.monaco-editor,
+.monaco-diff-editor input[type="text"]:focus,
+.monaco-editor,
+.monaco-diff-editor select:focus,
+.monaco-editor,
+.monaco-diff-editor textarea:focus {
+  outline: none !important;
+  outline-color: var(--yellow) !important;
+}
+
+.iPadShowKeyboard {
+  display: none;
+}
+
+.visuallyDisabled {
+  opacity: 0.5;
+}
+
+@layer components {
+  kbd {
+    @apply rounded-[4px] border border-gray-4 bg-gray-1 px-2 pt-[2px] text-xs font-medium dark:border-dark-gray-1 dark:bg-dark-gray-7;
+  }
+}
