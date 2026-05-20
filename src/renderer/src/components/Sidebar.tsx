@@ -49,31 +49,33 @@ const CustomTagElement = ({ tag }: { tag: ClientTag }) => {
   const [dropdownMenuOpen, setDropdownMenuOpen] = useState(false);
 
   return (
-    <Button variant={currentTagFilter?.id === tag.id ? 'tagSelected' : 'tag'}
+    <Button asChild variant={currentTagFilter?.id === tag.id ? 'tagSelected' : 'tag'}
       className="flex max-w-full items-center justify-between pr-0" size="tag"
       onClick={() => setCurrentTagFilter(tag)}>
-      <div className="flex items-center justify-start">
-        <i className="ri-circle-fill pr-3" style={{ color: tag.color }} />
-        <span className="block flex-1 truncate font-medium">{tag.name}</span>
+      <div role="button" tabIndex={0}>
+        <div className="flex items-center justify-start">
+          <i className="ri-circle-fill pr-3" style={{ color: tag.color }} />
+          <span className="block flex-1 truncate font-medium">{tag.name}</span>
+        </div>
+        <DropdownMenu open={dropdownMenuOpen} onOpenChange={setDropdownMenuOpen}>
+          <DropdownMenuTrigger asChild>
+            <Button className="group ml-auto h-8 w-8 shrink-0" variant="styleLess" size="icon"
+              onClick={(e) => { e.stopPropagation(); setDropdownMenuOpen(true); }}>
+              <i className="ri-more-2-fill ri-lg min-w-7 text-gray-7 group-hover:text-gray-8 dark:text-dark-gray-1 dark:group-hover:text-dark-gray-2" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent side="bottom" align="start">
+            <DropdownMenuItem onClick={(e) => e.stopPropagation()}
+              onSelect={() => showModal({ modalType: 'UPDATE_TAG_MODAL', modalProps: { id: tag.id } })}>
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={(e) => e.stopPropagation()}
+              onSelect={() => showConfirmModal({ modalType: 'CONFIRM_DELETE_MODAL', modalProps: { id: tag.id, removeCallback: () => removeTag(tag), type: 'TAG' } })}>
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-      <DropdownMenu open={dropdownMenuOpen} onOpenChange={setDropdownMenuOpen}>
-        <DropdownMenuTrigger asChild>
-          <Button className="group ml-auto h-8 w-8 shrink-0" variant="styleLess" size="icon"
-            onClick={(e) => { e.stopPropagation(); setDropdownMenuOpen(true); }}>
-            <i className="ri-more-2-fill ri-lg min-w-7 text-gray-7 group-hover:text-gray-8 dark:text-dark-gray-1 dark:group-hover:text-dark-gray-2" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent side="bottom" align="start">
-          <DropdownMenuItem onClick={(e) => e.stopPropagation()}
-            onSelect={() => showModal({ modalType: 'UPDATE_TAG_MODAL', modalProps: { id: tag.id } })}>
-            Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={(e) => e.stopPropagation()}
-            onSelect={() => showConfirmModal({ modalType: 'CONFIRM_DELETE_MODAL', modalProps: { id: tag.id, removeCallback: () => removeTag(tag), type: 'TAG' } })}>
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
     </Button>
   );
 };

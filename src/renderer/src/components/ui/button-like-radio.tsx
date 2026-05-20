@@ -1,31 +1,34 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { type MouseEvent, type ReactNode } from "react";
+import { type MouseEvent } from "react";
 
-const ButtonLikeRadio = ({
-  selected,
-  onClick,
-  tooltipCnheckedName,
-  tooltipUnheckedName,
-  children,
-}: {
-  selected: boolean;
-  onClick: (e: MouseEvent<HTMLElement>) => void;
+type ButtonLikeRadioProps = {
+  onClick?: (e: MouseEvent<HTMLElement>) => void;
+  selected?: boolean;
+  children?: React.ReactNode;
   tooltipCnheckedName: string;
   tooltipUnheckedName: string;
-  children: ReactNode;
-}) => {
+};
+
+const ButtonLikeRadio = ({
+  onClick,
+  selected = false,
+  children,
+  tooltipCnheckedName,
+  tooltipUnheckedName,
+}: ButtonLikeRadioProps) => {
   return (
     <Button
-      size="icon"
-      type="button"
-      onClick={onClick}
       className={cn(
-        "min-w-8 shadow-none hover:bg-gray-1 md:hover:bg-gray-2 dark:hover:bg-dark-gray-7 md:dark:hover:bg-dark-gray-4",
-        selected && "text-gray-7 dark:text-dark-gray-1",
-        !selected && "text-gray-4 dark:text-dark-gray-5",
+        "hover:bg-inherit hover:text-gray-5",
+        selected
+          ? "text-gray-7 dark:text-dark-gray-1"
+          : "text-gray-4 dark:text-dark-gray-5",
       )}
+      size="smallIcon"
+      variant="styleLess"
       manualTooltip={selected ? tooltipCnheckedName : tooltipUnheckedName}
+      onClick={onClick}
     >
       {children}
     </Button>

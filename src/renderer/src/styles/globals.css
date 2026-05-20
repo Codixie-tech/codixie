@@ -75,6 +75,11 @@
   body {
     @apply bg-gray-1 text-gray-7 dark:border-dark-gray-1 dark:bg-dark-gray-7 dark:text-dark-gray-1;
   }
+
+  html,
+  body {
+    font-family: "Inter", sans-serif;
+  }
 }
 
 .monaco-editor,

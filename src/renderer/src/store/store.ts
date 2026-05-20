@@ -6,7 +6,7 @@ export interface IClientStore {
   codeSnippets: ClientCodeSnippet[];
   isSidebarCollapsed: boolean;
 
-  loadFromFiles: (data: { tags: ClientTag[]; snippets: ClientCodeSnippet[] }) => void;
+  loadFromFiles: (data: { tags: ClientTag[]; snippets: ClientCodeSnippet[]; meta?: AppMeta | null }) => void;
 
   setIsSidebarCollapsed: (v: boolean) => void;
   toggleSidebar: () => void;
@@ -39,6 +39,9 @@ export const useClientStore = create<IClientStore>()((set, get) => ({
       tags: data.tags,
       codeSnippets: data.snippets,
     });
+    if (data.meta?.username) {
+      useUserNameStore.getState().setUsername(data.meta.username);
+    }
   },
 
   setIsSidebarCollapsed(v) {
@@ -189,9 +192,10 @@ export const useCommanderStore = create<CommanderStoreType>()((set) => ({
   setShowCommander(show) { set({ showCommander: show }); },
 }));
 
-type UserNameStoreType = { username: string };
-export const useUserNameStore = create<UserNameStoreType>()(() => ({
+type UserNameStoreType = { username: string; setUsername: (username: string) => void };
+export const useUserNameStore = create<UserNameStoreType>()((set) => ({
   username: generateRandomAnimalName(),
+  setUsername(username) { set({ username }); },
 }));
 
 type MainViewScrollType = { scrollValue: number; setScrollValue: (v: number) => void };
