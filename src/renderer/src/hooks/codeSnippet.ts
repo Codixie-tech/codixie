@@ -7,9 +7,10 @@ import { ModalContext } from '@/components/modals/ModalManager';
 export const useAddCodeSnippet = () => {
   const clientAddCodeSnippet = useClientStore((s) => s.addCodeSnippet);
 
-  return async function addCodeSnippet(snippet: ClientCodeSnippet) {
-    clientAddCodeSnippet(snippet);
-    window.codixieAPI.snippet.create(snippet);
+  return async function addCodeSnippet(snippet: ClientCodeSnippet & { isAutoLanguageDetection?: boolean }) {
+    const { isAutoLanguageDetection: _isAutoLanguageDetection, ...preparedSnippet } = snippet;
+    clientAddCodeSnippet(preparedSnippet);
+    window.codixieAPI.snippet.create(preparedSnippet);
     return true;
   };
 };
@@ -48,9 +49,10 @@ export const useDeletePermanentlyCodeSnippet = () => {
 export const useUpdateCodeSnippet = () => {
   const clientUpdate = useClientStore((s) => s.updateCodeSnippet);
 
-  return async function updateCodeSnippet(snippet: ClientCodeSnippet) {
-    clientUpdate(snippet);
-    const result = await window.codixieAPI.snippet.update(snippet);
+  return async function updateCodeSnippet(snippet: ClientCodeSnippet & { isAutoLanguageDetection?: boolean }) {
+    const { isAutoLanguageDetection: _isAutoLanguageDetection, ...preparedSnippet } = snippet;
+    clientUpdate(preparedSnippet);
+    const result = await window.codixieAPI.snippet.update(preparedSnippet);
     if (result) clientUpdate(result);
   };
 };

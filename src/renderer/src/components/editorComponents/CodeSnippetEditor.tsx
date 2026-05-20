@@ -41,10 +41,10 @@ const CommentSection = ({
   if (isDeletedContainer) {
     return (
       <div className="overflow-y-visible p-3" ref={animationParent}>
-        {editingCodeSnippet.comments.map((commentId) => (
+        {(editingCodeSnippet.comments ?? []).map((comment) => (
           <Comment
-            key={commentId}
-            comment={comments.find((c) => c.id === commentId)}
+            key={comment.id}
+            comment={comment}
           />
         ))}
       </div>
@@ -67,10 +67,10 @@ const CommentSection = ({
       </div>
 
       <div className="overflow-y-visible p-3" ref={animationParent}>
-        {editingCodeSnippet.comments.map((commentId) => (
+        {(editingCodeSnippet.comments ?? []).map((comment) => (
           <Comment
-            key={commentId}
-            comment={comments.find((c) => c.id === commentId)}
+            key={comment.id}
+            comment={comment}
           />
         ))}
       </div>

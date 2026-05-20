@@ -17,7 +17,6 @@ import _ from "lodash/fp";
 import {
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
   type FormEvent,
@@ -40,12 +39,6 @@ const UpdateCodeSnippetModal = ({ id }: { id: string }) => {
   const removeCodeSnippet = useRemoveCodeSnippet();
   const changeTags = useChangeTags();
 
-  const comments = useClientStore((state) =>
-    state.codeSnippets.flatMap((s) =>
-      (s.comments ?? []).map((c) => ({ ...c, codeSnippetId: s.id })),
-    ),
-  );
-
   const [open, setOpen] = useState(true);
 
   const currentCodeSnippet = useMemo(
@@ -53,33 +46,12 @@ const UpdateCodeSnippetModal = ({ id }: { id: string }) => {
     [id, allCodeSnippets],
   )!;
 
-  useEffect(() => {
-    setEditingCodeSnippet({
-      ...currentCodeSnippet,
-      currentLanguage: currentCodeSnippet?.currentLanguage as LanguageType,
-      isAutoLanguageDetection: false,
-      comments: _.compact(
-        comments.map((comment) => {
-          if (comment.codeSnippetId === currentCodeSnippet?.id) {
-            return comment.id;
-          }
-        }),
-      ),
-    });
-  }, [comments, currentCodeSnippet]);
-
   const [editingCodeSnippet, setEditingCodeSnippet] =
     useState<EditCodeSnippetType>({
       ...currentCodeSnippet,
       currentLanguage: currentCodeSnippet?.currentLanguage as LanguageType,
       isAutoLanguageDetection: false,
-      comments: _.compact(
-        comments.map((comment) => {
-          if (comment.codeSnippetId === currentCodeSnippet?.id) {
-            return comment.id;
-          }
-        }),
-      ),
+      comments: currentCodeSnippet?.comments ?? [],
     });
 
   const isCanBeSaved = useMemo(
@@ -128,28 +100,17 @@ const UpdateCodeSnippetModal = ({ id }: { id: string }) => {
       toast.error("Code must be filled");
       return;
     }
-    //if we don't change code or title, just close without sending to server
-    if (
-      title === currentCodeSnippet.title &&
-      code === currentCodeSnippet.code &&
-      currentCodeSnippet.currentLanguage === currentLanguage
-    ) {
-      setOpen(false);
-      closeModal();
-      return;
-    }
-
     // snippet with same title already exists
     if (!isCanBeSaved) {
       toast.error("Snippet with same title already exists");
       return;
     }
-    void updateCodeSnippet({
+    await updateCodeSnippet({
       ...editingCodeSnippet,
       title,
       code,
-      updatedAt: new Date(),
-      userId: null,
+      currentLanguage,
+      updatedAt: new Date().toISOString(),
     });
     setOpen(false);
     closeModal();
@@ -191,21 +152,17 @@ const UpdateCodeSnippetModal = ({ id }: { id: string }) => {
     const newComment: ClientComment = {
       id: uuidv4(),
       text,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      userId: null,
-      codeSnippetId: editingCodeSnippet.id,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       deletedAt: null,
-      // shouldBeDeleted: false,
       versionHash: uid(),
     };
 
-    void createComment(newComment);
+    void createComment(editingCodeSnippet.id, newComment);
 
-    // TODO: It's a feature, not bug)) :D
     setEditingCodeSnippet({
       ...editingCodeSnippet,
-      comments: [...editingCodeSnippet.comments, newComment.id],
+      comments: [...(editingCodeSnippet.comments ?? []), newComment],
     });
   };
 
@@ -280,9 +237,9 @@ const UpdateCodeSnippetModal = ({ id }: { id: string }) => {
   }
 
   return (
-    <CommonCodeSnippetModal
+      <CommonCodeSnippetModal
       {...{
-        comments,
+        comments: editingCodeSnippet.comments ?? [],
         editingCodeSnippet,
         handleBlockEdit,
         handleCreateComment,

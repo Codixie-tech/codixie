@@ -10,7 +10,6 @@ import {
   useRestoreCodeSnippet,
 } from "@/hooks/codeSnippet";
 import { useClientStore } from "@/store/store";
-import _ from "lodash/fp";
 import {
   type FormEvent,
   useCallback,
@@ -28,11 +27,6 @@ const TrashCodeSnippetModal = ({ id }: { id: string }) => {
   const tags = useClientStore((state) => state.tags);
 
   const [open, setOpen] = useState(true);
-  const comments = useClientStore((state) =>
-    state.codeSnippets.flatMap((s) =>
-      (s.comments ?? []).map((c) => ({ ...c, codeSnippetId: s.id })),
-    ),
-  );
 
   const currentCodeSnippet = useMemo(
     () => deletedCodeSnippets.find((c) => c.id === id),
@@ -45,13 +39,7 @@ const TrashCodeSnippetModal = ({ id }: { id: string }) => {
       currentLanguage: currentCodeSnippet?.currentLanguage as LanguageType,
       isAutoLanguageDetection: false,
       isEditable: false,
-      comments: _.compact(
-        comments.map((comment) => {
-          if (comment.codeSnippetId === currentCodeSnippet?.id) {
-            return comment.id;
-          }
-        }),
-      ),
+      comments: currentCodeSnippet?.comments ?? [],
     });
 
   // Permanently delete it
@@ -89,7 +77,7 @@ const TrashCodeSnippetModal = ({ id }: { id: string }) => {
   return (
     <CommonCodeSnippetModal
       {...{
-        comments,
+        comments: editingCodeSnippet.comments ?? [],
         editingCodeSnippet,
         handleRemove,
         handleSubmit,

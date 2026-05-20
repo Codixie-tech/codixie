@@ -88,10 +88,10 @@ const MobileCommentViewModal = ({
               </>
             )}
             <div className="py-5">
-              {editingCodeSnippet.comments.map((commentId) => (
+              {(editingCodeSnippet.comments ?? []).map((comment) => (
                 <Comment
-                  comment={comments.find((c) => c.id === commentId)}
-                  key={commentId}
+                  comment={comment}
+                  key={comment.id}
                 />
               ))}
             </div>

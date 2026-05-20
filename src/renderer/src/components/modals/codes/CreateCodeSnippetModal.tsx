@@ -28,8 +28,8 @@ const CreateCodeSnippetModal = () => {
     pinned: false,
     isEditable: true,
     currentLanguage: "auto",
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
     id: uuidv4(),
     isAutoLanguageDetection: true,
     comments: [],
@@ -38,12 +38,8 @@ const CreateCodeSnippetModal = () => {
     deletedAt: null,
     publishId: null,
     shareId: null,
-    // shouldBeDeleted: false,
-    userId: null,
     versionHash: uid(),
   });
-
-  const [comments, setComments] = useState<ClientComment[]>([]);
 
   const isCanBeSaved = useMemo(
     () => !!newCodeSnippet.title && !!newCodeSnippet.code,
@@ -94,13 +90,12 @@ const CreateCodeSnippetModal = () => {
         {
           ..._.omit("isAutoLanguageDetection", newCodeSnippet),
         },
-        comments,
       );
       if (result) {
         closeModal();
       }
     },
-    [addCodeSnippet, closeModal, comments, isCanBeSaved, newCodeSnippet],
+    [addCodeSnippet, closeModal, isCanBeSaved, newCodeSnippet],
   );
 
   const handleBlockEdit = () => {
@@ -114,21 +109,16 @@ const CreateCodeSnippetModal = () => {
     const newComment: ClientComment = {
       id: uuidv4(),
       text,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      codeSnippetId: newCodeSnippet.id,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       deletedAt: null,
-      // shouldBeDeleted: false,
-      userId: null,
       versionHash: uid(),
     };
 
     setNewCodeSnippet({
       ...newCodeSnippet,
-      comments: [...newCodeSnippet.comments, newComment.id],
+      comments: [...newCodeSnippet.comments, newComment],
     });
-
-    setComments([...comments, newComment]);
   };
 
   const handlePin = () => {
@@ -196,7 +186,7 @@ const CreateCodeSnippetModal = () => {
   return (
     <CommonCodeSnippetModal
       {...{
-        comments,
+        comments: newCodeSnippet.comments,
         editingCodeSnippet: newCodeSnippet,
         handleBlockEdit,
         handleCreateComment,
