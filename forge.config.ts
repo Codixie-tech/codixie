@@ -19,7 +19,9 @@ const config: ForgeConfig = {
       setupIcon: "./logo.ico",
     }),
     new MakerDMG({}, ["darwin"]),
-    new MakerAppImage({ options: { bin: "Codixie", icon: "logo.png" } }, ["linux"]),
+    new MakerAppImage({ options: { bin: "Codixie", icon: "logo.png" } }, [
+      "linux",
+    ]),
   ],
   plugins: [
     new VitePlugin({
