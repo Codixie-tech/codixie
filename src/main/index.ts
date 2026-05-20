@@ -1,9 +1,11 @@
 import { app, BrowserWindow, dialog, shell } from "electron";
+import Store from "electron-store";
 import path from "node:path";
 import { updateElectronApp } from "update-electron-app";
-import { FileStore } from "./store";
 import { registerIpcHandlers } from "./ipc";
-import Store from "electron-store";
+import { FileStore } from "./store";
+
+if (require("electron-squirrel-startup")) app.quit();
 
 app.disableHardwareAcceleration();
 
