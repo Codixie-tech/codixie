@@ -18,6 +18,7 @@
     "email": "vdmitry.log@gmail.com"
   },
   "license": "MIT",
+  "browserslist": ["Electron >= 42"],
   "devDependencies": {
     "@electron-forge/cli": "^7.11.1",
     "@electron-forge/maker-deb": "^7.11.1",
@@ -32,14 +33,14 @@
     "@types/electron-squirrel-startup": "^1.0.2",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
-    "@vitejs/plugin-react": "^3.1.0",
-    "electron": "33.4.11",
+    "@vitejs/plugin-react": "^6.0.2",
+    "electron": "^42.2.0",
     "eslint": "^8.57.1",
     "eslint-plugin-import": "^2.32.0",
     "tailwindcss": "^3.4.19",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "~5.5.0",
-    "vite": "^5.4.21"
+    "vite": "^8.0.13"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.8",
