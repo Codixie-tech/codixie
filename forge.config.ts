@@ -16,7 +16,7 @@ const config: ForgeConfig = {
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({
-      setupIcon: "./logo.png",
+      setupIcon: "./logo.ico",
     }),
     new MakerDMG({}, ["darwin"]),
     new MakerAppImage({ options: { bin: "Codixie", icon: "logo.png" } }, ["linux"]),
