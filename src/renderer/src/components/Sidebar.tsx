@@ -180,7 +180,7 @@ const DownloadUploadButtons = () => {
       <Button
         asChild
         size="icon"
-        className="flex-0"
+        className="shrink-0"
         tooltip={<p className="flex items-center gap-1">Import project</p>}
       >
         <label className="cursor-pointer" onClick={() => handleImport("merge")}>
@@ -190,7 +190,7 @@ const DownloadUploadButtons = () => {
       <Button
         onClick={handleExport}
         size="icon"
-        className="flex-0"
+        className="shrink-0"
         tooltip={<p className="flex items-center gap-1">Export project</p>}
       >
         <i className="ri-download-line ri-lg" />
@@ -237,23 +237,24 @@ const Sidebar = memo(
             <CustomTagList />
           </section>
         </ScrollArea>
-        <div className="flex h-[60px] items-center justify-start gap-2 bg-gray-3 px-4 dark:bg-dark-gray-7">
+        <div className="flex h-auto min-h-[60px] flex-wrap items-center justify-start gap-2 bg-gray-3 px-4 py-2 dark:bg-dark-gray-7">
           <Button
             size="icon"
-            className="flex-0 flex justify-center"
+            className="shrink-0"
             onClick={() => setIsDeletedSectionOpen(true)}
             tooltip={<p className="flex items-center gap-1">Deleted</p>}
           >
-            <i className="ri-delete-bin-6-line ri-lg min-w-[32px]" />
+            <i className="ri-delete-bin-6-line ri-lg" />
           </Button>
           <DownloadUploadButtons />
+          <div className="flex-1" />
           <Button
             size="icon"
-            className="ml-auto flex-0 justify-center"
+            className="shrink-0"
             onClick={switchToVaultSelector}
             tooltip={<p className="flex items-center gap-1">Switch vault</p>}
           >
-            <i className="ri-folder-shared-line ri-lg min-w-[32px]" />
+            <i className="ri-folder-shared-line ri-lg" />
           </Button>
         </div>
       </div>
