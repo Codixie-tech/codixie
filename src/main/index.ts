@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut } from "electron";
+import { app, BrowserWindow } from "electron";
 import path from "node:path";
 import { FileStore } from "./store";
 import { registerIpcHandlers } from "./ipc";

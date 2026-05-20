@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { useState, useLayoutEffect } from "react";
 
 const MIN_SIZE_IN_PIXELS = 100;
@@ -11,17 +10,16 @@ export const useResizePanel = (resizeId: string) => {
   useLayoutEffect(() => {
     const panelGroup = document.querySelector(
       `[data-panel-group-id="${resizeId}"]`,
-    )!;
+    );
+    if (!panelGroup) return;
     const resizeHandles = document.querySelectorAll(
       "[data-panel-resize-handle-id]",
     );
     const observer = new ResizeObserver(() => {
-      // @ts-ignore
       let width = panelGroup.offsetWidth;
 
       resizeHandles.forEach((resizeHandle) => {
-        // @ts-ignore
-        width -= resizeHandle.offsetWidth;
+        width -= (resizeHandle as HTMLElement).offsetWidth;
       });
 
       // Minimum size in pixels is a percentage of the PanelGroup's width,

@@ -30,7 +30,7 @@ const MobileCommentViewModal = ({
   onOpenChange: (open: boolean) => void;
   isDeletedContainer: boolean;
 }) => {
-  const { editingCodeSnippet, handleCreateComment, comments } = useContext(
+  const { editingCodeSnippet, handleCreateComment } = useContext(
     CreateCodeSnippetContext,
   );
 

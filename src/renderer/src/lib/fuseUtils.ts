@@ -38,33 +38,32 @@ export const search = <T>(
     });
 
     for (const key of keys) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const rawValue = (codeSnippet as Record<string, unknown>)[key];
       const value = ignoreCases
-        ? // @ts-ignore I check that value exists later
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-          codeSnippet[key].toLowerCase()
-        : // @ts-ignore I check that value exists later
-          codeSnippet[key];
+        ? String(rawValue).toLowerCase()
+        : String(rawValue);
 
-      if (!value || typeof value !== "string") return [];
+      if (!rawValue || typeof rawValue !== "string") return [];
 
-      // @ts-ignore it's string 100%
-      const initValue = codeSnippet[key] as string;
+      const initValue = rawValue;
 
       const match: Match = { key, value: initValue, indices: [] };
 
       let index: number[] | -1 = getIndices(value, preparedQuery);
-      // if nothins finded
       if (index === -1) continue;
       match.indices.push(index);
-      let offset = index[1]!;
+      let offset = index[1];
       let tempValue = value;
-      while (true) {
+      let searching = true;
+      while (searching) {
         tempValue = tempValue.slice(index[1]);
         index = getIndices(tempValue, preparedQuery);
-        if (index === -1) break;
-        match.indices.push([offset + index[0]!, offset + index[1]!]);
-        offset = offset + index[1]!;
+        if (index === -1) {
+          searching = false;
+        } else {
+          match.indices.push([offset + index[0], offset + index[1]]);
+          offset = offset + index[1];
+        }
       }
       result[result.length - 1]?.matches.push(match);
     }
@@ -87,13 +86,10 @@ export const highlight = <T>(
     let i;
 
     for (i = 0; i < pathValue.length - 1; i++) {
-      // @ts-ignore
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      obj = obj[pathValue[i]];
+      obj = (obj as Record<string, unknown>)[pathValue[i]] as T;
     }
 
-    // @ts-ignore
-    obj[pathValue[i]] = value;
+    (obj as Record<string, unknown>)[pathValue[i]] = value;
   };
 
   const generateHighlightedText = (inputText: string, regions: number[][]) => {
@@ -101,12 +97,12 @@ export const highlight = <T>(
     let nextUnhighlightedRegionStartingIndex = 0;
 
     regions.forEach((region) => {
-      const lastRegionNextIndex = region[1]! + 1;
+      const lastRegionNextIndex = region[1] + 1;
 
       content += [
         inputText.substring(nextUnhighlightedRegionStartingIndex, region[0]),
         `<span class="${highlightClassName}">`,
-        inputText.substring(region[0]!, lastRegionNextIndex),
+        inputText.substring(region[0], lastRegionNextIndex),
         "</span>",
       ].join("");
 
@@ -162,7 +158,7 @@ export const prepareForRender = (html: string) => {
   return Array.from(matches)
     .map((match, index, arr) => {
       if (index === arr.length - 1) {
-        const lastElement = arr[index]!;
+        const lastElement = arr[index];
         const startPosition = lastElement.index;
 
         const endPosition = startPosition + match[0].length;

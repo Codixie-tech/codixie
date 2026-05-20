@@ -1,8 +1,7 @@
 import { useClientStore } from '@/store/store';
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import { uid } from 'uid';
 import { v4 as uuidv4 } from 'uuid';
-import { ModalContext } from '@/components/modals/ModalManager';
 
 export const useAddTag = () => {
   const clientAddTag = useClientStore((s) => s.addTag);

@@ -1,8 +1,5 @@
 import { useClientStore } from '@/store/store';
-import { useContext, useMemo } from 'react';
-import { uid } from 'uid';
-import { v4 as uuidv4 } from 'uuid';
-import { ModalContext } from '@/components/modals/ModalManager';
+import { useMemo } from 'react';
 
 export const useAddCodeSnippet = () => {
   const clientAddCodeSnippet = useClientStore((s) => s.addCodeSnippet);

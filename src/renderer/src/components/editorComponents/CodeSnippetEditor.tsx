@@ -20,12 +20,10 @@ import { useAutoAnimate } from "@formkit/auto-animate/react";
 const CommentSection = ({
   handleCreateComment,
   editingCodeSnippet,
-  comments,
   isDeletedContainer,
 }: {
   handleCreateComment: (comment: string) => void;
   editingCodeSnippet: EditCodeSnippetType;
-  comments: ClientComment[];
   isDeletedContainer: boolean;
 }) => {
   const [animationParent] = useAutoAnimate();
@@ -85,7 +83,6 @@ const Sidebar = () => {
     handleSelectTag,
     handleCreateComment,
     saveTags,
-    comments,
     isDeletedContainer,
   } = useContext(CreateCodeSnippetContext);
 

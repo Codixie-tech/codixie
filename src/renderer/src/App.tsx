@@ -9,7 +9,7 @@ import { useClientStore } from './store/store';
 
 export const VaultContext = createContext<{
   switchToVaultSelector: () => void;
-}>({ switchToVaultSelector: () => {} });
+}>({ switchToVaultSelector: () => { /* no-op */ } });
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -120,7 +120,9 @@ async function handleFileChange(event: FileChangeEvent) {
       const tags = await window.codixieAPI.tag.getAll();
       const tag = tags.find((t: ClientTag) => t.id === event.entityId);
       if (tag) store.updateTag(tag);
-    } catch {}
+    } catch {
+      console.error('Failed to load tags:', event);
+    }
   } else if (event.entityType === 'snippet') {
     if (event.type === 'delete') {
       store.deletePermanentlyCodeSnippet(event.entityId);
@@ -130,6 +132,8 @@ async function handleFileChange(event: FileChangeEvent) {
       const snippets = await window.codixieAPI.snippet.getAll();
       const snippet = snippets.find((s: ClientCodeSnippet) => s.id === event.entityId);
       if (snippet) store.updateCodeSnippet(snippet);
-    } catch {}
+    } catch {
+      console.error('Failed to load snippets:', event);
+    }
   }
 }

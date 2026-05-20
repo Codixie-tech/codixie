@@ -58,8 +58,7 @@ const EditorView = () => {
   ]);
 
   const handleEditorDidMount = (_editor: unknown, monaco: Monaco) => {
-    // @ts-ignore
-    editorRef.current = monaco;
+    editorRef.current = monaco as unknown as typeof editorRef.current;
   };
 
   return (

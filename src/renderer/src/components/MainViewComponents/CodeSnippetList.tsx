@@ -116,7 +116,6 @@ const CodeSnippetList = ({
     }
 
     init();
-    // TODO: check it
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [codeSnippets, width]);
 
@@ -137,8 +136,7 @@ const CodeSnippetList = ({
           isDeletedContainer={isDeletedContainer}
           codeSnippet={codeSnippet}
           shouldHightlightCode={shouldHightlightCode}
-          // @ts-ignore
-          ref={(element) => (refList.current[index] = element!)}
+          ref={(element) => { refList.current[index] = element; }}
           style={{
             transitionDuration: "0.3s",
             transitionProperty: "transform opacity",

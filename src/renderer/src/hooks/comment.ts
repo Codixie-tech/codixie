@@ -1,5 +1,3 @@
-import { useClientStore } from '@/store/store';
-
 export const useAddComment = () => {
   return async function addComment(snippetId: string, comment: ClientComment) {
     window.codixieAPI.comment.add(snippetId, comment);

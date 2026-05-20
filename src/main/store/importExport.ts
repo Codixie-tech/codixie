@@ -237,7 +237,7 @@ export async function exportToWebFormat(store: FileStore): Promise<string> {
       tags: s.tags,
       comments: s.comments.map((c) => c.id),
     })),
-    comments: allComments.map((c, i) => ({
+    comments: allComments.map((c) => ({
       ...c,
       codeSnippetId:
         snippets.find((s) => s.comments.some((sc) => sc.id === c.id))?.id ?? "",

@@ -3,7 +3,7 @@ import path from 'node:path';
 import { v4 as uuidv4 } from 'uuid';
 import { uid } from 'uid';
 import { existsSync } from 'node:fs';
-import type { AppMeta, ClientCodeSnippet, ClientTag, FileChangeEvent } from '../../shared/types';
+import type { AppMeta, ClientCodeSnippet, ClientTag } from '../../shared/types';
 
 export class FileStore {
   private dataPath: string;
