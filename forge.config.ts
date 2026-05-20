@@ -11,12 +11,13 @@ const config: ForgeConfig = {
     asar: true,
     name: "Codixie",
     executableName: "Codixie",
+    icon: "./logo",
   },
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({}),
     new MakerZIP({}, ["darwin"]),
-    new MakerAppImage({ options: { bin: "Codixie" } }, ["linux"]),
+    new MakerAppImage({ options: { bin: "Codixie", icon: "logo.png" } }, ["linux"]),
   ],
   plugins: [
     new VitePlugin({

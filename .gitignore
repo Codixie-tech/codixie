@@ -98,3 +98,5 @@ dist/
 .omo
 
 .playwright-mcp
+
+!logo.png

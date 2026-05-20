@@ -2,7 +2,7 @@
   "name": "codixie",
   "productName": "Codixie",
   "version": "1.0.0",
-  "description": "Codixie",
+  "description": "Codixie is a service designed for developers to store, organize, and quickly access code snippets in convenient notes.",
   "main": ".vite/build/index.js",
   "private": true,
   "scripts": {

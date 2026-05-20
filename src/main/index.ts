@@ -24,6 +24,7 @@ const createWindow = async () => {
     width: 1200,
     height: 800,
     title: "Codixie",
+    icon: path.join(__dirname, "logo.png"),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
@@ -39,7 +40,8 @@ const createWindow = async () => {
     }
   });
 
-  let dataPath = electronStore.get("activeVaultPath") || electronStore.get("dataPath");
+  let dataPath =
+    electronStore.get("activeVaultPath") || electronStore.get("dataPath");
 
   if (!dataPath) {
     dataPath = path.join(app.getPath("documents"), "Codixie");

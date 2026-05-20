@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import path from 'node:path';
+import { copyFileSync } from 'node:fs';
 
 export default defineConfig({
   resolve: {
@@ -7,4 +8,16 @@ export default defineConfig({
       '@shared': path.resolve(__dirname, 'src/shared'),
     },
   },
+  build: {
+    copyPublicDir: false,
+  },
+  plugins: [
+    {
+      name: 'copy-logo',
+      closeBundle() {
+        const outDir = path.resolve(__dirname, '.vite/build');
+        copyFileSync(path.resolve(__dirname, 'logo.png'), path.join(outDir, 'logo.png'));
+      },
+    },
+  ],
 });
