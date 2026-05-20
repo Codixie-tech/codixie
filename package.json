@@ -1,8 +1,8 @@
 {
-  "name": "code-buffer-new",
-  "productName": "code-buffer-new",
+  "name": "codixie",
+  "productName": "Codixie",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "Codixie",
   "main": ".vite/build/index.js",
   "private": true,
   "scripts": {
