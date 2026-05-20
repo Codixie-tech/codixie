@@ -161,7 +161,7 @@ const DownloadUploadButtons = () => {
     if (result.success) {
       loadFromFiles(result);
       toast.success(mode === "replace" ? "Project replaced" : "Project merged");
-    } else if (result.error !== "cancelled") {
+    } else if ("error" in result && result.error !== "cancelled") {
       toast.error("Import failed: " + result.error);
     }
   };
@@ -170,7 +170,7 @@ const DownloadUploadButtons = () => {
     const result = await window.codixieAPI.importExport.exportToFile();
     if (result.success) {
       toast.success("Project exported");
-    } else if (result.error) {
+    } else if ("error" in result && result.error) {
       toast.error("Export failed: " + result.error);
     }
   };

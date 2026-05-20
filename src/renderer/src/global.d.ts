@@ -1,4 +1,4 @@
-import type { CodixieAPI } from '../preload';
+import type { CodixieAPI } from '../../preload';
 
 declare global {
   interface Window {
