@@ -16,7 +16,7 @@ export const useResizePanel = (resizeId: string) => {
       "[data-panel-resize-handle-id]",
     );
     const observer = new ResizeObserver(() => {
-      let width = panelGroup.offsetWidth;
+      let width = (panelGroup as HTMLElement).offsetWidth;
 
       resizeHandles.forEach((resizeHandle) => {
         width -= (resizeHandle as HTMLElement).offsetWidth;

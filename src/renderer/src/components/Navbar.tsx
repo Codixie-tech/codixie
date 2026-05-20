@@ -36,7 +36,7 @@ const Searchbar = memo(() => {
 
   const handleChange = useDebouncedCallback(async (value: string) => {
     const result = search(value, codeSnippets, ['title', 'code'], { ignoreCases: true });
-    const highlightedCode = highlight(result, 'cb-hightlight');
+    const highlightedCode = highlight(result, 'cb-hightlight') as ClientCodeSnippet[];
 
     setCurrentSearchText(value);
     setCurrentSearchResults(highlightedCode);

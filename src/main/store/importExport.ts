@@ -36,7 +36,8 @@ export async function importFromWebExport(
   }
 }
 
-function transformWebExport(data: z.infer<typeof StorageShema>): {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function transformWebExport(data: any): {
   tags: ClientTag[];
   snippets: ClientCodeSnippet[];
 } {

@@ -49,7 +49,7 @@ const UpdateTagModal = ({ id }: { id: string }) => {
       ...editingTag!,
       name: tagName,
       color: tagColor!,
-      updatedAt: new Date(),
+      updatedAt: new Date().toISOString(),
     });
     handleCloseModal();
   };

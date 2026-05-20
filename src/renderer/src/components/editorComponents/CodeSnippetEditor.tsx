@@ -40,10 +40,7 @@ const CommentSection = ({
     return (
       <div className="overflow-y-visible p-3" ref={animationParent}>
         {(editingCodeSnippet.comments ?? []).map((comment) => (
-          <Comment
-            key={comment.id}
-            comment={comment}
-          />
+          <Comment key={comment.id} comment={comment} />
         ))}
       </div>
     );
@@ -66,10 +63,7 @@ const CommentSection = ({
 
       <div className="overflow-y-visible p-3" ref={animationParent}>
         {(editingCodeSnippet.comments ?? []).map((comment) => (
-          <Comment
-            key={comment.id}
-            comment={comment}
-          />
+          <Comment key={comment.id} comment={comment} />
         ))}
       </div>
     </>
@@ -92,8 +86,7 @@ const Sidebar = () => {
 
   const [animationParentAnother] = useAutoAnimate();
 
-  const shouldShowTagPanel =
-    editingCodeSnippet.tags.length > 0;
+  const shouldShowTagPanel = editingCodeSnippet.tags.length > 0;
 
   return (
     <div className="fixed left-0 top-0 flex h-full w-60 flex-col rounded-l-xl bg-gray-3 md:w-52 dark:bg-dark-gray-7">
@@ -159,7 +152,6 @@ const Sidebar = () => {
             handleCreateComment={
               handleCreateComment ? handleCreateComment : () => void 0
             }
-            comments={comments}
           />
         </div>
       </ScrollArea>

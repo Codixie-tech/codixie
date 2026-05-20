@@ -6,7 +6,7 @@ import UpdateCodeSnippetModal from "@/components/modals/codes/UpdateCodeSnippetM
 import CreateTagModal from "@/components/modals/tags/CreateTagModal";
 import UpdateTagModal from "@/components/modals/tags/UpdateTagModal";
 import { useMobile } from "@/hooks/common/useMobile";
-import { createContext, useCallback, useMemo, useState } from "react";
+import { createContext, useCallback, useMemo, useState, type ReactNode } from "react";
 
 const MODAL_TYPES = {
   CREATE_TAG_MODAL: "CREATE_TAG_MODAL",
@@ -60,7 +60,7 @@ type GlobalModalContextType = {
 
 export const ModalContext = createContext({} as GlobalModalContextType);
 
-export function ModalManager({ children }: { children: React.ReactNode }) {
+export function ModalManager({ children }: { children: ReactNode }) {
   const isMobile = useMobile();
   const [modal, setModal] = useState<InputModalType | null>(null);
   const [confirmModals, setConfirmModals] = useState<ConfirmModalType[]>([]);
@@ -91,7 +91,7 @@ export function ModalManager({ children }: { children: React.ReactNode }) {
     const { modalProps, modalType } = modal;
     const Component = MODAL_COMPONENTS[modalType];
     if (!Component) return null;
-    // @ts-expect-error fine
+    // @ts-expect-error dynamic modal props
     return <Component {...modalProps} />;
   };
 
@@ -100,7 +100,7 @@ export function ModalManager({ children }: { children: React.ReactNode }) {
     return confirmModals.map(({ modalProps, modalType }) => {
       const Component = CONFIRM_MODAL_COMPONENTS[modalType];
       if (!Component) return null;
-      // @ts-expect-error fine
+      // @ts-expect-error dynamic modal props
       return <Component key={modalType} {...modalProps} />;
     });
   };

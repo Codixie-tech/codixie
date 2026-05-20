@@ -133,7 +133,7 @@ export const useClientStore = create<IClientStore>()((set, get) => ({
   },
 }));
 
-type DateFiltersType = 'All' | 'Today' | 'Week' | 'Month' | 'Year';
+export type DateFiltersType = 'All' | 'Today' | 'Week' | 'Month' | 'Year';
 type SearchStoreType = {
   currentTagFilter: ClientTag | null;
   setCurrentTagFilter: (tag: ClientTag | null) => void;

@@ -1,15 +1,19 @@
-import { ThemeProvider } from './components/ThemeProvider';
-import { TooltipProvider } from './components/ui/tooltip';
-import MainView from './components/MainView';
-import VaultSelectorScreen from './components/VaultSelectorScreen';
-import { ModalManager } from './components/modals/ModalManager';
-import { Toaster } from './components/ui/sonner';
-import { createContext, useEffect, useState } from 'react';
-import { useClientStore } from './store/store';
+import { ThemeProvider } from "./components/ThemeProvider";
+import { TooltipProvider } from "./components/ui/tooltip";
+import MainView from "./components/MainView";
+import VaultSelectorScreen from "./components/VaultSelectorScreen";
+import { ModalManager } from "./components/modals/ModalManager";
+import { Toaster } from "./components/ui/sonner";
+import { createContext, useEffect, useState } from "react";
+import { useClientStore } from "./store/store";
 
 export const VaultContext = createContext<{
   switchToVaultSelector: () => void;
-}>({ switchToVaultSelector: () => { /* no-op */ } });
+}>({
+  switchToVaultSelector: () => {
+    /* no-op */
+  },
+});
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -40,16 +44,22 @@ export default function App() {
 
         setIsLoading(false);
       } catch (err) {
-        console.error('Failed to initialize:', err);
+        console.error("Failed to initialize:", err);
         if (!cancelled) setIsLoading(false);
       }
     }
 
     init();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const handleVaultOpened = (data: { tags: ClientTag[]; snippets: ClientCodeSnippet[]; meta?: AppMeta | null }) => {
+  const handleVaultOpened = (data: {
+    tags: ClientTag[];
+    snippets: ClientCodeSnippet[];
+    meta?: AppMeta | null;
+  }) => {
     loadFromFiles(data);
     setShowVaultSelector(false);
     setIsLoading(false);
@@ -81,7 +91,12 @@ export default function App() {
   }
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
       <VaultContext.Provider value={{ switchToVaultSelector }}>
         <TooltipProvider>
           <ModalManager>
@@ -91,12 +106,12 @@ export default function App() {
               toastOptions={{
                 classNames: {
                   success:
-                    'bg-green-1 border-green-3 text-green-3 border dark:bg-dark-green-3 dark:text-dark-green-1 dark:border-dark-green-1',
-                  closeButton: '-right-1 left-auto top-3 border-none ',
+                    "bg-green-1 border-green-3 text-green-3 border dark:bg-dark-green-3 dark:text-dark-green-1 dark:border-dark-green-1",
+                  closeButton: "-right-1 left-auto top-3 border-none ",
                   error:
-                    'bg-red-1 border-red-2 text-red-2 border dark:bg-dark-red-2 dark:text-dark-red-1 dark:border-dark-red-1',
+                    "bg-red-1 border-red-2 text-red-2 border dark:bg-dark-red-2 dark:text-dark-red-1 dark:border-dark-red-1",
                   loading:
-                    'bg-gray-2 text-gray-7 border-gray-7 border dark:bg-dark-gray-7 dark:text-dark-gray-1 dark:border-dark-gray-1',
+                    "bg-gray-2 text-gray-7 border-gray-7 border dark:bg-dark-gray-7 dark:text-dark-gray-1 dark:border-dark-gray-1",
                 },
               }}
             />
@@ -111,8 +126,8 @@ export default function App() {
 async function handleFileChange(event: FileChangeEvent) {
   const store = useClientStore.getState();
 
-  if (event.entityType === 'tag') {
-    if (event.type === 'delete') {
+  if (event.entityType === "tag") {
+    if (event.type === "delete") {
       store.removeTag(event.entityId);
       return;
     }
@@ -121,19 +136,21 @@ async function handleFileChange(event: FileChangeEvent) {
       const tag = tags.find((t: ClientTag) => t.id === event.entityId);
       if (tag) store.updateTag(tag);
     } catch {
-      console.error('Failed to load tags:', event);
+      console.error("Failed to load tags:", event);
     }
-  } else if (event.entityType === 'snippet') {
-    if (event.type === 'delete') {
+  } else if (event.entityType === "snippet") {
+    if (event.type === "delete") {
       store.deletePermanentlyCodeSnippet(event.entityId);
       return;
     }
     try {
       const snippets = await window.codixieAPI.snippet.getAll();
-      const snippet = snippets.find((s: ClientCodeSnippet) => s.id === event.entityId);
+      const snippet = snippets.find(
+        (s: ClientCodeSnippet) => s.id === event.entityId,
+      );
       if (snippet) store.updateCodeSnippet(snippet);
     } catch {
-      console.error('Failed to load snippets:', event);
+      console.error("Failed to load snippets:", event);
     }
   }
 }

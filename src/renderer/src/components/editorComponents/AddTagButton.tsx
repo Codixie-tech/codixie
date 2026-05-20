@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import { type EditCodeSnippetType } from "@/components/contexts/CodeSnippetContext";
 import { Button } from "@/components/ui/button";
 import {
