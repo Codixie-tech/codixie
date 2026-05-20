@@ -5,6 +5,10 @@
   "description": "Codixie is a service designed for developers to store, organize, and quickly access code snippets in convenient notes.",
   "main": ".vite/build/index.js",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Codixie-tech/codixie"
+  },
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
@@ -92,6 +96,7 @@
     "superjson": "^2.2.6",
     "tailwind-merge": "^3.6.0",
     "uid": "^2.0.2",
+    "update-electron-app": "^3.2.0",
     "use-debounce": "^10.1.1",
     "usehooks-ts": "^3.1.1",
     "uuid": "^14.0.0",

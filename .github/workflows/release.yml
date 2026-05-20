@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            maker: "@reforged/maker-appimage"
+          - os: windows-latest
+            platform: win32
+            maker: "@electron-forge/maker-squirrel"
+          - os: macos-latest
+            platform: darwin
+            maker: "@electron-forge/maker-zip"
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Install Linux build tools
+        if: matrix.platform == 'linux'
+        run: sudo apt-get update && sudo apt-get install -y squashfs-tools
+
+      - name: Build
+        run: npm run make
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Codixie-${{ matrix.platform }}
+          path: out/make/**/*
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            out/make/**/*.AppImage
+            out/make/**/*.exe
+            out/make/**/*.dmg
+            out/make/**/*.zip
+          generate_release_notes: true
