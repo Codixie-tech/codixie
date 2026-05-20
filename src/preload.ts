@@ -6,12 +6,15 @@ const api = {
     isFirstLaunch: () => ipcRenderer.invoke(IPC_CHANNELS.APP_IS_FIRST_LAUNCH),
     getMeta: () => ipcRenderer.invoke(IPC_CHANNELS.APP_GET_META),
     getDataPath: () => ipcRenderer.invoke(IPC_CHANNELS.APP_GET_DATA_PATH),
+    getVaults: () => ipcRenderer.invoke(IPC_CHANNELS.APP_GET_VAULTS),
     selectDataFolder: () => ipcRenderer.invoke(IPC_CHANNELS.APP_SELECT_DATA_FOLDER),
     initialLoad: () => ipcRenderer.invoke(IPC_CHANNELS.APP_INITIAL_LOAD),
     changeDataFolder: (newPath: string) =>
       ipcRenderer.invoke(IPC_CHANNELS.APP_CHANGE_DATA_FOLDER, newPath),
-    initializeVault: (newPath: string, username: string) =>
-      ipcRenderer.invoke(IPC_CHANNELS.APP_INITIALIZE_VAULT, newPath, username),
+    openVault: (newPath: string) => ipcRenderer.invoke(IPC_CHANNELS.APP_OPEN_VAULT, newPath),
+    removeVault: (vaultPath: string) => ipcRenderer.invoke(IPC_CHANNELS.APP_REMOVE_VAULT, vaultPath),
+    initializeVault: (newPath: string) =>
+      ipcRenderer.invoke(IPC_CHANNELS.APP_INITIALIZE_VAULT, newPath),
     onFileChanged: (callback: (event: any) => void) => {
       const handler = (_e: any, data: any) => callback(data);
       ipcRenderer.on(IPC_CHANNELS.FILE_CHANGED, handler);
@@ -49,12 +52,6 @@ const api = {
       ipcRenderer.invoke(IPC_CHANNELS.COMMENT_UPDATE, snippetId, comment),
     delete: (snippetId: string, commentId: string) =>
       ipcRenderer.invoke(IPC_CHANNELS.COMMENT_DELETE, snippetId, commentId),
-  },
-
-  user: {
-    get: () => ipcRenderer.invoke(IPC_CHANNELS.USER_GET),
-    setUsername: (username: string) =>
-      ipcRenderer.invoke(IPC_CHANNELS.USER_SET_USERNAME, username),
   },
 
   importExport: {

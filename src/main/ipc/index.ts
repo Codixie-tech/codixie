@@ -4,9 +4,35 @@ import type { FileStore } from '../store';
 import { FileWatcher } from '../watcher';
 import { importFromWebExport, exportToWebFormat } from '../store/importExport';
 import fs from 'node:fs/promises';
+import path from 'node:path';
 
-export function registerIpcHandlers(store: FileStore, mainWindow: BrowserWindow) {
+type AppConfig = {
+  dataPath: string;
+  activeVaultPath: string;
+  recentVaultPaths: string[];
+};
+
+type ConfigStore = {
+  get<Key extends keyof AppConfig>(key: Key): AppConfig[Key];
+  set<Key extends keyof AppConfig>(key: Key, value: AppConfig[Key]): void;
+};
+
+export function registerIpcHandlers(store: FileStore, mainWindow: BrowserWindow, configStore: ConfigStore) {
   const watcher = new FileWatcher(store);
+
+  const rememberVault = (vaultPath: string) => {
+    const recent = configStore.get('recentVaultPaths').filter((p) => p !== vaultPath);
+    configStore.set('activeVaultPath', vaultPath);
+    configStore.set('dataPath', vaultPath);
+    configStore.set('recentVaultPaths', [vaultPath, ...recent].slice(0, 10));
+  };
+
+  const loadVaultData = async () => {
+    const tags = await store.getAllTags();
+    const snippets = await store.getAllSnippets();
+    const meta = store.getMeta();
+    return { tags, snippets, meta };
+  };
 
   const startWatcher = () => {
     watcher.start((event) => {
@@ -35,32 +61,62 @@ export function registerIpcHandlers(store: FileStore, mainWindow: BrowserWindow)
     return result.filePaths[0];
   });
 
+  ipcMain.handle(IPC_CHANNELS.APP_GET_VAULTS, async () => {
+    const activeVaultPath = configStore.get('activeVaultPath') || configStore.get('dataPath');
+    const recentVaultPaths = configStore.get('recentVaultPaths');
+    const allPaths = [...new Set([activeVaultPath, ...recentVaultPaths].filter(Boolean))];
+    return {
+      activeVaultPath,
+      vaults: allPaths.map((vaultPath) => ({
+        path: vaultPath,
+        name: path.basename(vaultPath),
+        active: vaultPath === activeVaultPath,
+      })),
+    };
+  });
+
+  ipcMain.handle(IPC_CHANNELS.APP_REMOVE_VAULT, async (_e, vaultPath: string) => {
+    const recent = configStore.get('recentVaultPaths').filter((p) => p !== vaultPath);
+    configStore.set('recentVaultPaths', recent);
+    if (configStore.get('activeVaultPath') === vaultPath) {
+      configStore.set('activeVaultPath', recent[0] ?? '');
+      configStore.set('dataPath', recent[0] ?? '');
+    }
+  });
+
   ipcMain.handle(IPC_CHANNELS.APP_INITIAL_LOAD, async () => {
-    const tags = await store.getAllTags();
-    const snippets = await store.getAllSnippets();
-    const meta = store.getMeta();
     startWatcher();
-    return { tags, snippets, meta };
+    return loadVaultData();
   });
 
   ipcMain.handle(IPC_CHANNELS.APP_CHANGE_DATA_FOLDER, async (_e, newPath: string) => {
     watcher.stop();
     const isFirst = await store.loadFromNewPath(newPath);
     if (!isFirst) {
+      rememberVault(newPath);
       startWatcher();
     }
     return isFirst;
   });
 
-  ipcMain.handle(IPC_CHANNELS.APP_INITIALIZE_VAULT, async (_e, newPath: string, username: string) => {
+  ipcMain.handle(IPC_CHANNELS.APP_OPEN_VAULT, async (_e, newPath: string) => {
+    watcher.stop();
+    const isFirst = await store.loadFromNewPath(newPath);
+    if (isFirst) {
+      return { needsInit: true, data: null };
+    }
+    rememberVault(newPath);
+    startWatcher();
+    return { needsInit: false, data: await loadVaultData() };
+  });
+
+  ipcMain.handle(IPC_CHANNELS.APP_INITIALIZE_VAULT, async (_e, newPath: string) => {
     watcher.stop();
     await store.loadFromNewPath(newPath);
-    await store.initializeNewVault(username);
+    await store.initializeNewVault();
+    rememberVault(newPath);
     startWatcher();
-    const tags = await store.getAllTags();
-    const snippets = await store.getAllSnippets();
-    const meta = store.getMeta();
-    return { tags, snippets, meta };
+    return loadVaultData();
   });
 
   // Tags
@@ -104,12 +160,6 @@ export function registerIpcHandlers(store: FileStore, mainWindow: BrowserWindow)
   });
   ipcMain.handle(IPC_CHANNELS.COMMENT_DELETE, async (_e, snippetId: string, commentId: string) => {
     await store.deleteComment(snippetId, commentId);
-  });
-
-  // User
-  ipcMain.handle(IPC_CHANNELS.USER_GET, async () => store.getMeta());
-  ipcMain.handle(IPC_CHANNELS.USER_SET_USERNAME, async (_e, username: string) => {
-    await store.setUsername(username);
   });
 
   // Import/Export

@@ -7,7 +7,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ScrollArea } from '@/components/ui/fixed-scroll-area';
-import { useSearchStore, useClientStore, type DateFiltersType, type PublishFiltersType } from '@/store/store';
+import { useSearchStore, useClientStore, type DateFiltersType } from '@/store/store';
+import { VaultContext } from '@/App';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { memo, useContext, useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -99,31 +100,6 @@ const CustomTagList = () => {
   );
 };
 
-const PublishTagElement = ({ text }: { text: PublishFiltersType }) => {
-  const setCurrentPublishFilter = useSearchStore((s) => s.setCurrentPublishFilter);
-  const currentPublishFilter = useSearchStore((s) => s.currentPublishFilter);
-  return (
-    <Button variant={currentPublishFilter === text ? 'tagSelected' : 'tag'}
-      className="flex max-w-full items-center justify-start gap-3"
-      onClick={() => setCurrentPublishFilter(text)} size="tag">
-      <div className="h-3 w-3 flex-shrink-0 rounded-full border border-gray-7 bg-lime dark:border-none" />
-      <span className="block truncate font-medium">{text}</span>
-    </Button>
-  );
-};
-
-const PublicTagList = () => (
-  <div>
-    <div className="flex items-center justify-between py-1 pl-4">
-      <h1 className="pl-1 text-sm font-semibold text-gray-5">Public</h1>
-    </div>
-    <div>
-      <PublishTagElement text="Publish" />
-      <PublishTagElement text="Shared" />
-    </div>
-  </div>
-);
-
 const DownloadUploadButtons = () => {
   const { showConfirmModal } = useContext(ModalContext);
   const loadFromFiles = useClientStore((s) => s.loadFromFiles);
@@ -166,6 +142,7 @@ const DownloadUploadButtons = () => {
 const Sidebar = memo(({ setIsSidebarCollapsed }: { setIsSidebarCollapsed: (v: boolean) => void }) => {
   const { showModal } = useContext(ModalContext);
   const setIsDeletedSectionOpen = useSearchStore((s) => s.setIsDeletedSectionOpen);
+  const { switchToVaultSelector } = useContext(VaultContext);
 
   return (
     <div className="flex h-screen flex-col">
@@ -182,7 +159,6 @@ const Sidebar = memo(({ setIsSidebarCollapsed }: { setIsSidebarCollapsed: (v: bo
             </Button>
           </div>
           <div className="pt-6"><DefaultTagList /></div>
-          <PublicTagList />
           <CustomTagList />
         </section>
       </ScrollArea>
@@ -193,6 +169,11 @@ const Sidebar = memo(({ setIsSidebarCollapsed }: { setIsSidebarCollapsed: (v: bo
           <i className="ri-delete-bin-6-line ri-lg min-w-[32px]" />
         </Button>
         <DownloadUploadButtons />
+        <Button size="icon" className="ml-auto flex-0 justify-center"
+          onClick={switchToVaultSelector}
+          tooltip={<p className="flex items-center gap-1">Switch vault</p>}>
+          <i className="ri-folder-shared-line ri-lg min-w-[32px]" />
+        </Button>
       </div>
     </div>
   );

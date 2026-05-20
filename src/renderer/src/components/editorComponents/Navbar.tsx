@@ -1,23 +1,15 @@
 import {
   CreateCodeSnippetContext,
-  type EditCodeSnippetType,
 } from "@/components/contexts/CodeSnippetContext";
 import LanguageSelect from "@/components/editorComponents/LanguageSelect";
 import CopyButton from "@/components/ui/copy-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { useMobile } from "@/hooks/common/useMobile";
 import { generateDeleteAfterDate } from "@/lib/dateUtils";
 import { getCtrlKey } from "@/lib/platformUtils";
 import { cn } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
-import { type MouseEvent, type ReactNode, useContext, useState } from "react";
-import { toast } from "sonner";
+import { type MouseEvent, type ReactNode, useContext } from "react";
 
 const NavbarButton = ({
   onClick,
@@ -100,88 +92,6 @@ const MobileViewOrder = ({
   );
 };
 
-const ShareSelect = ({ codeSnippet }: { codeSnippet: EditCodeSnippetType }) => {
-  const [open, setOpen] = useState(false);
-
-  const [isShareLoading, setShareLoading] = useState(false);
-  const [isPublishLoading, setPublishLoading] = useState(false);
-
-  const handleCopyClick = (url: string) => {
-    void navigator.clipboard.writeText(window.location.host + url);
-    toast.info("url copied to clipboard");
-  };
-
-  return (
-    <Popover modal open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          size="icon"
-          className="hidden min-w-8 shadow-none md:flex md:justify-center"
-        >
-          <i className="ri-share-box-line ri-lg" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-60 px-4 py-2">
-        <div className="pb-4">
-          <h3 className="text-sm font-semibold">
-            Share
-            <span className="pl-2 text-green-3">
-              {codeSnippet.shareId ? "(Shared)" : ""}
-            </span>
-          </h3>
-          <p className="py-2 text-xs font-medium">
-            You can share the code by sending it via the link
-          </p>
-          <div className="flex flex-col gap-2">
-            {codeSnippet.shareId && (
-              <Button
-                disabled={isShareLoading}
-                onClick={() => handleCopyClick(`/share/${codeSnippet.shareId}`)}
-              >
-                Copy link
-              </Button>
-            )}
-            <Button onClick={() => {}} disabled={isShareLoading}>
-              {isShareLoading && <Loader2 className="mr-2 animate-spin" />}
-              {!codeSnippet.shareId ? "Share" : "Unshare"}
-            </Button>
-          </div>
-        </div>
-        <div className="pb-2">
-          <h3 className="text-sm font-semibold">
-            Publish
-            <span className="pl-2 text-green-3">
-              {codeSnippet.publishId ? "(Published)" : ""}
-            </span>
-          </h3>
-          <p className="py-2 text-xs font-medium">
-            Your code can be found by searching on the Internet
-          </p>
-          <div className="flex flex-col gap-2">
-            {codeSnippet.publishId && (
-              <Button
-                disabled={isPublishLoading}
-                onClick={() =>
-                  handleCopyClick(
-                    `/publish/${encodeURIComponent(codeSnippet.title)}`,
-                  )
-                }
-              >
-                Click to copy link
-              </Button>
-            )}
-            <Button onClick={() => {}} disabled={isPublishLoading}>
-              {isPublishLoading && <Loader2 className="mr-2 animate-spin" />}
-              {!codeSnippet.publishId ? "Publish" : "Unpublish"}
-            </Button>
-          </div>
-        </div>
-      </PopoverContent>
-    </Popover>
-  );
-};
-
 const DesktopViewOrder = ({
   handleCopyClick,
 }: {
@@ -193,7 +103,6 @@ const DesktopViewOrder = ({
     handlePin,
     handleRemove,
     isDeletedContainer,
-    canShare,
   } = useContext(CreateCodeSnippetContext);
 
   const ctrlKey = getCtrlKey();
@@ -201,7 +110,6 @@ const DesktopViewOrder = ({
   return (
     <>
       <LanguageSelect />
-      {canShare && <ShareSelect codeSnippet={editingCodeSnippet} />}
       <CopyButton
         onClick={handleCopyClick}
         size="icon"

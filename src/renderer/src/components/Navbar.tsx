@@ -1,6 +1,7 @@
 import CustomAvatar from '@/components/CustomAvatar';
 import { ModeToggle } from '@/components/ModeToggle';
 import { ModalContext } from '@/components/modals/ModalManager';
+import { VaultContext } from '@/App';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -21,7 +22,6 @@ import {
   useCommanderStore,
   useMainViewScroll,
   useSearchStore,
-  useUserNameStore,
 } from '@/store/store';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { useTheme } from 'next-themes';
@@ -123,7 +123,7 @@ const MobileProfileMenu = () => {
   return (
     <Sheet>
       <VisuallyHidden>
-        <SheetTitle>Profile Menu</SheetTitle>
+        <SheetTitle>Settings Menu</SheetTitle>
       </VisuallyHidden>
       <SheetTrigger className="flex items-center">
         <Button size="icon" className="flex items-center rounded-full p-0">
@@ -138,12 +138,8 @@ const MobileProfileMenu = () => {
             </Button>
           </SheetClose>
           <div className="flex flex-[3] justify-start">
-            <h1 className="mx-auto pt-2 font-semibold">Profile</h1>
+            <h1 className="mx-auto pt-2 font-semibold">Settings</h1>
           </div>
-        </div>
-        <div className="flex items-center justify-start gap-2">
-          <CustomAvatar />
-          <span className="text-sm">@{useUserNameStore.getState().username}</span>
         </div>
         <div className="flex justify-center">
           <h1 className="font-semibold">Appearance</h1>
@@ -157,11 +153,7 @@ const MobileProfileMenu = () => {
 };
 
 const ProfileMenu = () => {
-  const username = useUserNameStore((state) => state.username);
-
-  const handleCopyClick = () => {
-    void navigator.clipboard.writeText(`@${username}`);
-  };
+  const { switchToVaultSelector } = useContext(VaultContext);
 
   return (
     <DropdownMenu>
@@ -171,8 +163,9 @@ const ProfileMenu = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem className="flex justify-between" onClick={handleCopyClick}>
-          <span>@{username}</span>
+        <DropdownMenuItem onClick={switchToVaultSelector}>
+          <i className="ri-folder-shared-line mr-2" />
+          Switch vault
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

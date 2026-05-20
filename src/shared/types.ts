@@ -28,8 +28,6 @@ export type ClientCodeSnippet = {
   comments: ClientComment[];
   versionHash: string;
   deletedAt: string | null;
-  publishId: string | null;
-  shareId: string | null;
 };
 
 export type ClientComment = {
@@ -43,9 +41,14 @@ export type ClientComment = {
 
 export type AppMeta = {
   version: number;
-  username: string;
   dataFolder: string;
   createdAt: string;
+};
+
+export type VaultInfo = {
+  path: string;
+  name: string;
+  active: boolean;
 };
 
 export type FileChangeEvent = {

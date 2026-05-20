@@ -39,10 +39,9 @@ export class FileStore {
     return true;
   }
 
-  async initializeNewVault(username: string): Promise<void> {
+  async initializeNewVault(): Promise<void> {
     const meta: AppMeta = {
       version: 1,
-      username,
       dataFolder: this.dataPath,
       createdAt: new Date().toISOString(),
     };
@@ -79,8 +78,6 @@ export class FileStore {
       comments: [],
       versionHash: uid(),
       deletedAt: null,
-      publishId: null,
-      shareId: null,
     };
 
     const snippet2: ClientCodeSnippet = {
@@ -96,8 +93,6 @@ export class FileStore {
       comments: [],
       versionHash: uid(),
       deletedAt: null,
-      publishId: null,
-      shareId: null,
     };
 
     await this.createTag(tutorialTag);
@@ -285,14 +280,9 @@ export class FileStore {
     }
   }
 
-  async setUsername(username: string): Promise<void> {
-    if (!this.meta) return;
-    this.meta.username = username;
-    await this.writeJsonFileAtomic(path.join(this.dataPath, 'codixie', 'meta.json'), this.meta);
-  }
-
   async loadFromNewPath(newDataPath: string): Promise<boolean> {
     this.dataPath = newDataPath;
+    this.meta = null;
     return this.init();
   }
 

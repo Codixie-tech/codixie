@@ -6,6 +6,9 @@ export const IPC_CHANNELS = {
   APP_IS_FIRST_LAUNCH: 'app:isFirstLaunch',
   APP_INITIAL_LOAD: 'app:initialLoad',
   APP_INITIALIZE_VAULT: 'app:initializeVault',
+  APP_GET_VAULTS: 'app:getVaults',
+  APP_OPEN_VAULT: 'app:openVault',
+  APP_REMOVE_VAULT: 'app:removeVault',
 
   TAG_GET_ALL: 'tag:getAll',
   TAG_CREATE: 'tag:create',
@@ -21,15 +24,10 @@ export const IPC_CHANNELS = {
   SNIPPET_PIN: 'snippet:pin',
   SNIPPET_BLOCK_EDIT: 'snippet:blockEdit',
   SNIPPET_CHANGE_TAGS: 'snippet:changeTags',
-  SNIPPET_SHARE: 'snippet:share',
-  SNIPPET_PUBLISH: 'snippet:publish',
 
   COMMENT_ADD: 'comment:add',
   COMMENT_UPDATE: 'comment:update',
   COMMENT_DELETE: 'comment:delete',
-
-  USER_GET: 'user:get',
-  USER_SET_USERNAME: 'user:setUsername',
 
   IMPORT_WEB_EXPORT: 'import:webExport',
   EXPORT_TO_FILE: 'export:toFile',

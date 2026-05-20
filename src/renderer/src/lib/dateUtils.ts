@@ -1,5 +1,5 @@
-export const generateDeleteAfterDate = (date: Date) => {
+export const generateDeleteAfterDate = (date: string) => {
   return Math.floor(
-    (date.getTime() + 86400000 * 7 - new Date().getTime()) / 86400000,
+    (new Date(date).getTime() + 86400000 * 7 - new Date().getTime()) / 86400000,
   );
 };

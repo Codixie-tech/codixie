@@ -1,33 +1,37 @@
-import { existsSync } from 'node:fs';
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import SuperJSON from 'superjson';
-import { v4 as uuidv4 } from 'uuid';
-import { StorageShema } from '../../shared/contracts';
-import type { ClientCodeSnippet, ClientComment, ClientTag } from '../../shared/types';
-import { generateNewNameForCopy } from '../../shared/utils';
-import { FileStore } from './index';
+import { parse, stringify } from "superjson";
+import { v4 as uuidv4 } from "uuid";
+import { StorageShema } from "../../shared/contracts";
+import type {
+  ClientCodeSnippet,
+  ClientComment,
+  ClientTag,
+} from "../../shared/types";
+import { generateNewNameForCopy } from "../../shared/utils";
+import { FileStore } from "./index";
 
 export async function importFromWebExport(
   store: FileStore,
   jsonString: string,
-  mode: 'replace' | 'merge',
+  mode: "replace" | "merge",
 ): Promise<void> {
-  const parsed = SuperJSON.parse<Record<string, unknown>>(jsonString);
+  const parsed = parse<Record<string, unknown>>(jsonString);
 
   const validated = StorageShema.safeParse(parsed);
   if (!validated.success) {
-    throw new Error('Invalid export format: ' + validated.error.message);
+    throw new Error("Invalid export format: " + validated.error.message);
   }
 
   const data = transformWebExport(validated.data);
 
-  if (mode === 'replace') {
+  if (mode === "replace") {
     await store.replaceAllData(data);
   } else {
     const existingTags = await store.getAllTags();
     const existingSnippets = await store.getAllSnippets();
-    const merged = mergeData({ tags: existingTags, snippets: existingSnippets }, data);
+    const merged = mergeData(
+      { tags: existingTags, snippets: existingSnippets },
+      data,
+    );
     await store.mergeData(merged);
   }
 }
@@ -44,9 +48,19 @@ function transformWebExport(data: z.infer<typeof StorageShema>): {
     return {
       ...tag,
       id: newId,
-      createdAt: typeof tag.createdAt === 'string' ? tag.createdAt : new Date(tag.createdAt).toISOString(),
-      updatedAt: typeof tag.updatedAt === 'string' ? tag.updatedAt : new Date(tag.updatedAt).toISOString(),
-      deletedAt: tag.deletedAt ? (typeof tag.deletedAt === 'string' ? tag.deletedAt : new Date(tag.deletedAt).toISOString()) : null,
+      createdAt:
+        typeof tag.createdAt === "string"
+          ? tag.createdAt
+          : new Date(tag.createdAt).toISOString(),
+      updatedAt:
+        typeof tag.updatedAt === "string"
+          ? tag.updatedAt
+          : new Date(tag.updatedAt).toISOString(),
+      deletedAt: tag.deletedAt
+        ? typeof tag.deletedAt === "string"
+          ? tag.deletedAt
+          : new Date(tag.deletedAt).toISOString()
+        : null,
     };
   });
 
@@ -54,14 +68,25 @@ function transformWebExport(data: z.infer<typeof StorageShema>): {
 
   const commentsBySnippetId = new Map<string, ClientComment[]>();
   for (const comment of data.comments) {
-    const snippetComments = commentsBySnippetId.get(comment.codeSnippetId) ?? [];
+    const snippetComments =
+      commentsBySnippetId.get(comment.codeSnippetId) ?? [];
     const newCommentId = uuidv4();
     snippetComments.push({
       id: newCommentId,
       text: comment.text,
-      createdAt: typeof comment.createdAt === 'string' ? comment.createdAt : new Date(comment.createdAt).toISOString(),
-      updatedAt: typeof comment.updatedAt === 'string' ? comment.updatedAt : new Date(comment.updatedAt).toISOString(),
-      deletedAt: comment.deletedAt ? (typeof comment.deletedAt === 'string' ? comment.deletedAt : new Date(comment.deletedAt).toISOString()) : null,
+      createdAt:
+        typeof comment.createdAt === "string"
+          ? comment.createdAt
+          : new Date(comment.createdAt).toISOString(),
+      updatedAt:
+        typeof comment.updatedAt === "string"
+          ? comment.updatedAt
+          : new Date(comment.updatedAt).toISOString(),
+      deletedAt: comment.deletedAt
+        ? typeof comment.deletedAt === "string"
+          ? comment.deletedAt
+          : new Date(comment.deletedAt).toISOString()
+        : null,
       versionHash: comment.versionHash,
     });
     commentsBySnippetId.set(comment.codeSnippetId, snippetComments);
@@ -80,14 +105,22 @@ function transformWebExport(data: z.infer<typeof StorageShema>): {
       pinned: snippet.pinned,
       isEditable: snippet.isEditable,
       currentLanguage: snippet.currentLanguage,
-      createdAt: typeof snippet.createdAt === 'string' ? snippet.createdAt : new Date(snippet.createdAt).toISOString(),
-      updatedAt: typeof snippet.updatedAt === 'string' ? snippet.updatedAt : new Date(snippet.updatedAt).toISOString(),
+      createdAt:
+        typeof snippet.createdAt === "string"
+          ? snippet.createdAt
+          : new Date(snippet.createdAt).toISOString(),
+      updatedAt:
+        typeof snippet.updatedAt === "string"
+          ? snippet.updatedAt
+          : new Date(snippet.updatedAt).toISOString(),
       tags: mappedTags,
       comments,
       versionHash: snippet.versionHash,
-      deletedAt: snippet.deletedAt ? (typeof snippet.deletedAt === 'string' ? snippet.deletedAt : new Date(snippet.deletedAt).toISOString()) : null,
-      publishId: null,
-      shareId: null,
+      deletedAt: snippet.deletedAt
+        ? typeof snippet.deletedAt === "string"
+          ? snippet.deletedAt
+          : new Date(snippet.deletedAt).toISOString()
+        : null,
     };
   });
 
@@ -134,12 +167,22 @@ function mergeData(oldData: MergeInput, newData: MergeInput): MergeInput {
     );
     if (!oldSnippet) return { ...newSnippet, tags };
 
-    if (oldSnippet.id === newSnippet.id && oldSnippet.title !== newSnippet.title) {
+    if (
+      oldSnippet.id === newSnippet.id &&
+      oldSnippet.title !== newSnippet.title
+    ) {
       const created: ClientCodeSnippet = { ...newSnippet, id: uuidv4(), tags };
       updatedIdsSnippets.set(newSnippet.id, created.id);
       return created;
-    } else if (oldSnippet.title === newSnippet.title && oldSnippet.id !== newSnippet.id) {
-      return { ...newSnippet, title: generateNewNameForCopy(newSnippet.title), tags };
+    } else if (
+      oldSnippet.title === newSnippet.title &&
+      oldSnippet.id !== newSnippet.id
+    ) {
+      return {
+        ...newSnippet,
+        title: generateNewNameForCopy(newSnippet.title),
+        tags,
+      };
     } else {
       const created: ClientCodeSnippet = {
         ...newSnippet,
@@ -191,14 +234,13 @@ export async function exportToWebFormat(store: FileStore): Promise<string> {
       updatedAt: s.updatedAt,
       versionHash: s.versionHash,
       deletedAt: s.deletedAt,
-      publishId: s.publishId,
-      shareId: s.shareId,
       tags: s.tags,
       comments: s.comments.map((c) => c.id),
     })),
     comments: allComments.map((c, i) => ({
       ...c,
-      codeSnippetId: snippets.find((s) => s.comments.some((sc) => sc.id === c.id))?.id ?? '',
+      codeSnippetId:
+        snippets.find((s) => s.comments.some((sc) => sc.id === c.id))?.id ?? "",
     })),
     isSidebarCollapsed: false,
     lastSyncDate: new Date().toISOString(),
@@ -208,5 +250,5 @@ export async function exportToWebFormat(store: FileStore): Promise<string> {
     commentsOffline: [],
   };
 
-  return SuperJSON.stringify(exportData);
+  return stringify(exportData);
 }

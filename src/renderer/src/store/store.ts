@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import generateRandomAnimalName from '@/lib/animalNameGenerator';
 
 export interface IClientStore {
   tags: ClientTag[];
@@ -39,9 +38,6 @@ export const useClientStore = create<IClientStore>()((set, get) => ({
       tags: data.tags,
       codeSnippets: data.snippets,
     });
-    if (data.meta?.username) {
-      useUserNameStore.getState().setUsername(data.meta.username);
-    }
   },
 
   setIsSidebarCollapsed(v) {
@@ -138,8 +134,6 @@ export const useClientStore = create<IClientStore>()((set, get) => ({
 }));
 
 type DateFiltersType = 'All' | 'Today' | 'Week' | 'Month' | 'Year';
-type PublishFiltersType = 'Shared' | 'Publish';
-
 type SearchStoreType = {
   currentTagFilter: ClientTag | null;
   setCurrentTagFilter: (tag: ClientTag | null) => void;
@@ -147,8 +141,6 @@ type SearchStoreType = {
   setCurrentDateFilter: (date: DateFiltersType | null) => void;
   isDeletedSectionOpen: boolean;
   setIsDeletedSectionOpen: (open: boolean) => void;
-  currentPublishFilter: PublishFiltersType | null;
-  setCurrentPublishFilter: (tag: PublishFiltersType | null) => void;
   currentSearchResults: ClientCodeSnippet[];
   setCurrentSearchResults: (codeSnippets: ClientCodeSnippet[]) => void;
   currentSearchText: string;
@@ -159,16 +151,12 @@ type SearchStoreType = {
 export const useSearchStore = create<SearchStoreType>()((set) => ({
   currentDateFilter: 'All',
   currentTagFilter: null,
-  currentPublishFilter: null,
   isDeletedSectionOpen: false,
   setCurrentDateFilter(date) {
-    set({ currentDateFilter: date, currentTagFilter: null, currentPublishFilter: null, isDeletedSectionOpen: false });
+    set({ currentDateFilter: date, currentTagFilter: null, isDeletedSectionOpen: false });
   },
   setCurrentTagFilter(tag) {
-    set({ currentTagFilter: tag, currentDateFilter: null, currentPublishFilter: null, isDeletedSectionOpen: false });
-  },
-  setCurrentPublishFilter(tag) {
-    set({ currentPublishFilter: tag, currentDateFilter: null, currentTagFilter: null, isDeletedSectionOpen: false });
+    set({ currentTagFilter: tag, currentDateFilter: null, isDeletedSectionOpen: false });
   },
   currentSearchResults: [],
   setCurrentSearchResults(codeSnippets) {
@@ -190,12 +178,6 @@ type CommanderStoreType = { showCommander: boolean; setShowCommander: (show: boo
 export const useCommanderStore = create<CommanderStoreType>()((set) => ({
   showCommander: false,
   setShowCommander(show) { set({ showCommander: show }); },
-}));
-
-type UserNameStoreType = { username: string; setUsername: (username: string) => void };
-export const useUserNameStore = create<UserNameStoreType>()((set) => ({
-  username: generateRandomAnimalName(),
-  setUsername(username) { set({ username }); },
 }));
 
 type MainViewScrollType = { scrollValue: number; setScrollValue: (v: number) => void };

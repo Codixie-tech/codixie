@@ -30,8 +30,6 @@ export const CodeSnippetDTOSchema = z.object({
   updatedAt: z.string(),
   versionHash: z.string(),
   deletedAt: z.string().nullable(),
-  shareId: z.string().nullable(),
-  publishId: z.string().nullable(),
   tags: z.array(z.string().uuid()),
   comments: z.array(CommentDTOSchema),
 });
@@ -50,7 +48,6 @@ export const StorageShema = z.object({
 
 export const AppMetaSchema = z.object({
   version: z.number(),
-  username: z.string(),
   dataFolder: z.string(),
   createdAt: z.string(),
 });

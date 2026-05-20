@@ -133,19 +133,12 @@ const CodeSnippetListView = () => {
   const currentSnippets = currentSearchText ? currentSearchResutls : codeSnippets;
   const currentDateFilter = useSearchStore((s) => s.currentDateFilter);
   const currentTagFilter = useSearchStore((s) => s.currentTagFilter);
-  const currentPublishFilter = useSearchStore((s) => s.currentPublishFilter);
   const isDeletedSectionOpen = useSearchStore((s) => s.isDeletedSectionOpen);
 
   const filteredCodeSnippets = useMemo(() => {
     if (currentTagFilter) {
       return currentSnippets.filter((c) => c.tags.includes(currentTagFilter.id))
         .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-    }
-    if (currentPublishFilter) {
-      const f = currentPublishFilter === 'Publish'
-        ? currentSnippets.filter((c) => c.publishId)
-        : currentSnippets.filter((c) => c.shareId);
-      return f.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
     }
     let f: ClientCodeSnippet[];
     const now = Date.now();
@@ -157,7 +150,7 @@ const CodeSnippetListView = () => {
       default: f = currentSnippets; break;
     }
     return f.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-  }, [currentDateFilter, currentPublishFilter, currentSnippets, currentTagFilter]);
+  }, [currentDateFilter, currentSnippets, currentTagFilter]);
 
   const sortedDeleted = useMemo(() =>
     deletedCodeSnippets.sort((a, b) => new Date(b.deletedAt!).getTime() - new Date(a.deletedAt!).getTime()),

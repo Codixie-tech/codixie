@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, globalShortcut } from "electron";
 import path from "node:path";
 import { FileStore } from "./store";
 import { registerIpcHandlers } from "./ipc";
@@ -6,9 +6,15 @@ import Store from "electron-store";
 
 app.disableHardwareAcceleration();
 
-const electronStore = new Store<{ dataPath: string }>({
+type AppConfig = {
+  dataPath: string;
+  activeVaultPath: string;
+  recentVaultPaths: string[];
+};
+
+const electronStore = new Store<AppConfig>({
   name: "codixie-config",
-  defaults: { dataPath: "" },
+  defaults: { dataPath: "", activeVaultPath: "", recentVaultPaths: [] },
 });
 
 let mainWindow: BrowserWindow | null = null;
@@ -27,7 +33,13 @@ const createWindow = async () => {
 
   mainWindow.removeMenu();
 
-  let dataPath = electronStore.get("dataPath");
+  mainWindow.webContents.on("before-input-event", (_e, input) => {
+    if (input.key === "F12") {
+      mainWindow?.webContents.toggleDevTools();
+    }
+  });
+
+  let dataPath = electronStore.get("activeVaultPath") || electronStore.get("dataPath");
 
   if (!dataPath) {
     dataPath = path.join(app.getPath("documents"), "Codixie");
@@ -36,13 +48,7 @@ const createWindow = async () => {
   const store = new FileStore(dataPath);
   await store.init();
 
-  registerIpcHandlers(store, mainWindow);
-
-  electronStore.onDidChange("dataPath", (newPath) => {
-    if (newPath) {
-      electronStore.set("dataPath", newPath);
-    }
-  });
+  registerIpcHandlers(store, mainWindow, electronStore);
 
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);

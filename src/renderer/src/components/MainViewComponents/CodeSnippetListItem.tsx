@@ -213,26 +213,6 @@ const CodeSnippetListItem = memo(
           </div>
           {/* Footer */}
           <footer className="flex justify-start gap-2 overflow-hidden p-3 pt-1">
-            {/* Published */}
-            {codeSnippet.publishId && (
-              <div key="published" className="flex max-w-24 items-center gap-1">
-                <div className="h-2 w-2 shrink-0 rounded-full bg-lime" />
-                <div className="block truncate text-[10px] text-gray-5 dark:text-dark-gray-2">
-                  Published
-                </div>
-              </div>
-            )}
-
-            {/* Shared */}
-            {codeSnippet.shareId && (
-              <div key="shared" className="flex max-w-24 items-center gap-1">
-                <div className="h-2 w-2 shrink-0 rounded-full bg-lime" />
-                <div className="block truncate text-[10px] text-gray-5 dark:text-dark-gray-2">
-                  Shared
-                </div>
-              </div>
-            )}
-
             {codeSnippet.tags.map((tagId) => (
               <div key={tagId} className="flex max-w-24 items-center gap-1">
                 <div

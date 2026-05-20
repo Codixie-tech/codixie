@@ -187,27 +187,6 @@ const MobileTagView = () => {
         !isDeletedContainer ? "justify-between" : "",
       )}
     >
-      {/* <div className="flex justify-start flex-wrap gap-2 overflow-hidden flex-1"> */}
-
-      {/* Publish */}
-      {editingCodeSnippet.publishId && (
-        <div key="shared" className="flex max-w-24 items-center gap-1">
-          <div className="h-2 w-2 shrink-0 rounded-full bg-lime" />
-          <div className="text-foreground-base-light block truncate text-xs">
-            Publish
-          </div>
-        </div>
-      )}
-      {/* Shared */}
-      {editingCodeSnippet.shareId && (
-        <div key="shared" className="flex max-w-24 items-center gap-1">
-          <div className="h-2 w-2 shrink-0 rounded-full bg-lime" />
-          <div className="text-foreground-base-light block truncate text-xs">
-            Shared
-          </div>
-        </div>
-      )}
-
       {editingCodeSnippet.tags.map((tagId) => (
         <div key={tagId} className="flex max-w-24 items-center gap-1">
           <div

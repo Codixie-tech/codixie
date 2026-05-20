@@ -96,10 +96,7 @@ const Sidebar = () => {
   const [animationParentAnother] = useAutoAnimate();
 
   const shouldShowTagPanel =
-    editingCodeSnippet.tags.length > 0 ||
-    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-    editingCodeSnippet.shareId ||
-    editingCodeSnippet.publishId;
+    editingCodeSnippet.tags.length > 0;
 
   return (
     <div className="fixed left-0 top-0 flex h-full w-60 flex-col rounded-l-xl bg-gray-3 md:w-52 dark:bg-dark-gray-7">
@@ -127,58 +124,34 @@ const Sidebar = () => {
                   className="flex min-h-8 flex-col gap-2 pt-4"
                   ref={animationParent}
                 >
-                  {/* Publish */}
-                  {editingCodeSnippet.publishId && (
-                    <div
-                      key="publish"
-                      className="flex items-center justify-start"
-                    >
-                      <i className="ri-circle-fill pr-2 text-lime" />
-                      <span className="block flex-1 truncate text-sm">
-                        Publish
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Share */}
-                  {editingCodeSnippet.shareId && (
-                    <div
-                      key="shared"
-                      className="flex items-center justify-start"
-                    >
-                      <i className="ri-circle-fill pr-2 text-lime" />
-                      <span className="block flex-1 truncate text-sm">
-                        Shared
-                      </span>
-                    </div>
-                  )}
-
-                  {editingCodeSnippet.tags.map((tagId) => (
-                    <div
-                      key={tagId}
-                      className="flex items-center justify-start"
-                    >
-                      <i
-                        className="ri-circle-fill pr-2"
-                        style={{
-                          color: tags.find((t) => t.id === tagId)!.color,
-                        }}
-                      />
-                      <span className="block flex-1 truncate text-sm">
-                        {tags.find((t) => t.id === tagId)?.name}
-                      </span>
-                      {!isDeletedContainer && (
-                        <div
-                          role="button"
-                          tabIndex={0}
-                          className="ml-auto cursor-pointer"
-                          onClick={() => handleRemoveTag?.(tagId)}
-                        >
-                          <i className="ri-close-line ri-lg text-gray-7 dark:text-dark-gray-1" />
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                  {editingCodeSnippet.tags.map((tagId) => {
+                    const tag = tags.find((t) => t.id === tagId);
+                    if (!tag) return null;
+                    return (
+                      <div
+                        key={tagId}
+                        className="flex items-center justify-start"
+                      >
+                        <i
+                          className="ri-circle-fill pr-2"
+                          style={{ color: tag.color }}
+                        />
+                        <span className="block flex-1 truncate text-sm">
+                          {tag.name}
+                        </span>
+                        {!isDeletedContainer && (
+                          <div
+                            role="button"
+                            tabIndex={0}
+                            className="ml-auto cursor-pointer"
+                            onClick={() => handleRemoveTag?.(tagId)}
+                          >
+                            <i className="ri-close-line ri-lg text-gray-7 dark:text-dark-gray-1" />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}

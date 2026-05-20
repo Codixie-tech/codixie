@@ -36,8 +36,6 @@ const CreateCodeSnippetModal = () => {
     code: "",
     title: "",
     deletedAt: null,
-    publishId: null,
-    shareId: null,
     versionHash: uid(),
   });
 

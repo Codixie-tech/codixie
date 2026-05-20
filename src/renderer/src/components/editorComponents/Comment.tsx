@@ -1,8 +1,4 @@
-import { useUserNameStore } from "@/store/store";
-
 const Comment = ({ comment }: { comment?: ClientComment }) => {
-  const defaultUsername = useUserNameStore((state) => state.username);
-
   if (!comment) return;
   return (
     <div>
@@ -14,7 +10,7 @@ const Comment = ({ comment }: { comment?: ClientComment }) => {
         </div>
         <div className="flex flex-col">
           <span className="text-sm font-medium text-gray-7 dark:text-dark-gray-1">
-            {defaultUsername}
+            You
           </span>
           <span className="text-xs font-medium text-gray-6 dark:text-dark-gray-4">
             {new Date(comment.createdAt).toLocaleString(undefined, {
