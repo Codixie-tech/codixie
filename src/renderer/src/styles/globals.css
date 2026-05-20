@@ -1,6 +1,80 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *):not(.light *));
+
+@theme {
+  --color-gray-1: var(--gray-1);
+  --color-gray-2: var(--gray-2);
+  --color-gray-3: var(--gray-3);
+  --color-gray-4: var(--gray-4);
+  --color-gray-5: var(--gray-5);
+  --color-gray-6: var(--gray-6);
+  --color-gray-7: var(--gray-7);
+  --color-gray-8: var(--gray-8);
+  --color-gray-9: var(--gray-9);
+
+  --color-red-1: var(--red-1);
+  --color-red-2: var(--red-2);
+
+  --color-green-1: var(--green-1);
+  --color-green-2: var(--green-2);
+  --color-green-3: var(--green-3);
+
+  --color-lime: var(--lime);
+  --color-radio-orange: var(--radio-orange);
+  --color-radio-yellow: var(--radio-yellow);
+  --color-radio-blue: var(--radio-blue);
+  --color-radio-pink: var(--radio-pink);
+  --color-radio-green: var(--radio-green);
+  --color-radio-red: var(--radio-red);
+  --color-radio-dark-blue: var(--radio-dark-blue);
+
+  --color-dark-gray-1: var(--dark-gray-1);
+  --color-dark-gray-2: var(--dark-gray-2);
+  --color-dark-gray-3: var(--dark-gray-3);
+  --color-dark-gray-4: var(--dark-gray-4);
+  --color-dark-gray-5: var(--dark-gray-5);
+  --color-dark-gray-6: var(--dark-gray-6);
+  --color-dark-gray-7: var(--dark-gray-7);
+  --color-dark-gray-8: var(--dark-gray-8);
+  --color-dark-gray-9: var(--dark-gray-9);
+
+  --color-dark-green-1: var(--dark-green-1);
+  --color-dark-green-2: var(--dark-green-2);
+  --color-dark-green-3: var(--dark-green-3);
+
+  --color-dark-red-1: var(--dark-red-1);
+  --color-dark-red-2: var(--dark-red-2);
+
+  --shadow-button: 0 3px 25px 3px rgba(0, 0, 0, 0.05);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+
+  to {
+    height: 0;
+  }
+}
 
 @layer utilities {
   .placeholder-padding::placeholder {

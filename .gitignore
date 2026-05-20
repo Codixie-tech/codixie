@@ -96,3 +96,5 @@ dist/
 *.png
 
 .omo
+
+.playwright-mcp

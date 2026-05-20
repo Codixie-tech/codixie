@@ -885,7 +885,7 @@ const ScrollAreaThumbImpl = React.forwardRef<
   const composedRef = useComposedRefs(forwardedRef, (node) =>
     scrollbarContext.onThumbChange(node),
   );
-  const removeUnlinkedScrollListenerRef = React.useRef<() => void>();
+  const removeUnlinkedScrollListenerRef = React.useRef<(() => void) | undefined>(undefined);
   const debounceScrollEnd = useDebounceCallback(() => {
     if (removeUnlinkedScrollListenerRef.current) {
       removeUnlinkedScrollListenerRef.current();
