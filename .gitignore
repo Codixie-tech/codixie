@@ -100,3 +100,4 @@ dist/
 .playwright-mcp
 
 !logo.png
+!screens/*
