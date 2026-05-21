@@ -349,19 +349,63 @@ export class FileStore {
     return JSON.parse(content) as T;
   }
 
-  private async readAllFiles<T>(dir: string): Promise<T[]> {
+  private async readAllFiles<T extends { id: string }>(dir: string): Promise<T[]> {
     if (!existsSync(dir)) return [];
     const files = await fs.readdir(dir);
-    const results: T[] = [];
+
+    const entries: Array<{ filename: string; data: T }> = [];
     for (const file of files) {
       if (!file.endsWith('.json')) continue;
       try {
         const content = await fs.readFile(path.join(dir, file), 'utf-8');
-        results.push(JSON.parse(content) as T);
+        entries.push({ filename: file, data: JSON.parse(content) as T });
       } catch {
         // skip corrupted files
       }
     }
+
+    const byId = new Map<string, Array<{ filename: string; data: T }>>();
+    for (const entry of entries) {
+      const list = byId.get(entry.data.id) ?? [];
+      list.push(entry);
+      byId.set(entry.data.id, list);
+    }
+
+    const results: T[] = [];
+    for (const [id, group] of byId) {
+      if (group.length === 1) {
+        results.push(group[0].data);
+        continue;
+      }
+
+      // Sync conflict copies (Dropbox, Google Drive, etc.) — original matches {id}.json
+      const originalIdx = group.findIndex((e) => e.filename === `${id}.json`);
+      const original = originalIdx >= 0 ? group[originalIdx] : group[0];
+      results.push(original.data);
+
+      const conflicts = originalIdx >= 0
+        ? group.filter((_, i) => i !== originalIdx)
+        : group.slice(1);
+
+      for (const conflict of conflicts) {
+        const newId = uuidv4();
+        const fixed = { ...conflict.data, id: newId } as T;
+
+        const newPath = path.join(dir, `${newId}.json`);
+        await this.writeJsonFileAtomic(newPath, fixed);
+
+        const oldPath = path.join(dir, conflict.filename);
+        this.markRecentlyWritten(oldPath);
+        try {
+          await fs.unlink(oldPath);
+        } catch {
+          // already removed
+        }
+
+        results.push(fixed);
+      }
+    }
+
     return results;
   }
 }
