@@ -7,10 +7,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useGetCodeSnippets } from '@/hooks/codeSnippet';
 import { useMobile } from '@/hooks/common/useMobile';
 import { useScrollListener } from '@/hooks/common/useScrollListener';
@@ -27,6 +28,7 @@ import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { useTheme } from 'next-themes';
 import { memo, useContext, useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
+import { toast } from 'sonner';
 
 const Searchbar = memo(() => {
   const codeSnippets = useGetCodeSnippets();
@@ -119,7 +121,105 @@ const TripleToggleSwitch = () => {
   );
 };
 
+type McpConfigResult = {
+  command: string;
+  args: string[];
+  config: string;
+  stdio: {
+    command: string;
+    args: string[];
+    config: string;
+  };
+  http: {
+    running: boolean;
+    host: string;
+    port: number | null;
+    url: string | null;
+    config: string | null;
+  };
+};
+
+const McpSetupPanel = () => {
+  const [config, setConfig] = useState<McpConfigResult | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    window.codixieAPI.mcp
+      .getConfig()
+      .then((result) => {
+        setConfig(result);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const copy = async (text: string, label: string) => {
+    await navigator.clipboard.writeText(text);
+    toast(`${label} copied to clipboard`);
+  };
+
+  if (loading) {
+    return (
+      <div className="py-4 text-center text-sm text-gray-5 dark:text-dark-gray-3">
+        Loading MCP config...
+      </div>
+    );
+  }
+
+  if (!config) {
+    return (
+      <div className="py-4 text-center text-sm text-gray-5 dark:text-dark-gray-3">
+        Failed to load MCP config
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <h3 className="text-sm font-semibold">HTTP Server</h3>
+        {config.http.running && config.http.url ? (
+          <>
+            <div className="flex items-center gap-2 rounded bg-gray-2 p-2 dark:bg-dark-gray-5">
+              <code className="min-w-0 flex-1 break-all text-xs">{config.http.url}</code>
+              <Button className="h-7 w-auto px-2" size="sm" variant="styleLess" onClick={() => void copy(config.http.url!, 'URL')}>
+                Copy URL
+              </Button>
+            </div>
+            {config.http.config && (
+              <div className="space-y-2">
+                <pre className="overflow-auto rounded bg-gray-2 p-2 text-xs dark:bg-dark-gray-5">
+                  {config.http.config}
+                </pre>
+                <Button className="h-7 w-auto px-2" size="sm" variant="styleLess" onClick={() => void copy(config.http.config!, 'HTTP config')}>
+                  Copy HTTP config
+                </Button>
+              </div>
+            )}
+          </>
+        ) : (
+          <p className="text-xs text-gray-5 dark:text-dark-gray-3">Not running</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <h3 className="text-sm font-semibold">Stdio</h3>
+        <div className="space-y-2">
+          <pre className="overflow-auto rounded bg-gray-2 p-2 text-xs dark:bg-dark-gray-5">
+            {config.stdio.config}
+          </pre>
+          <Button className="h-7 w-auto px-2" size="sm" variant="styleLess" onClick={() => void copy(config.stdio.config, 'Stdio config')}>
+            Copy stdio config
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const MobileProfileMenu = () => {
+  const [showMcpSetup, setShowMcpSetup] = useState(false);
+
   return (
     <Sheet>
       <VisuallyHidden>
@@ -138,15 +238,42 @@ const MobileProfileMenu = () => {
             </Button>
           </SheetClose>
           <div className="flex flex-[3] justify-start">
-            <h1 className="mx-auto pt-2 font-semibold">Settings</h1>
+            <h1 className="mx-auto pt-2 font-semibold">
+              {showMcpSetup ? 'MCP Setup' : 'Settings'}
+            </h1>
           </div>
         </div>
-        <div className="flex justify-center">
-          <h1 className="font-semibold">Appearance</h1>
-        </div>
-        <div className="flex justify-center">
-          <TripleToggleSwitch />
-        </div>
+        {showMcpSetup ? (
+          <>
+            <button
+              className="flex items-center gap-1 text-sm text-gray-5 dark:text-dark-gray-3"
+              onClick={() => setShowMcpSetup(false)}
+            >
+              <i className="ri-arrow-left-s-line" />
+              Back to settings
+            </button>
+            <McpSetupPanel />
+          </>
+        ) : (
+          <>
+            <div className="flex justify-center">
+              <h1 className="font-semibold">Appearance</h1>
+            </div>
+            <div className="flex justify-center">
+              <TripleToggleSwitch />
+            </div>
+            <div className="border-t border-gray-3 pt-4 dark:border-dark-gray-5">
+              <Button
+                variant="styleLess"
+                className="flex w-full items-center justify-start gap-2 text-sm"
+                onClick={() => setShowMcpSetup(true)}
+              >
+                <i className="ri-server-line" />
+                MCP Setup
+              </Button>
+            </div>
+          </>
+        )}
       </SheetContent>
     </Sheet>
   );
@@ -154,21 +281,38 @@ const MobileProfileMenu = () => {
 
 const ProfileMenu = () => {
   const { switchToVaultSelector } = useContext(VaultContext);
+  const [mcpSheetOpen, setMcpSheetOpen] = useState(false);
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button size="icon" className="rounded-full p-0">
-          <CustomAvatar />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuItem onClick={switchToVaultSelector}>
-          <i className="ri-folder-shared-line mr-2" />
-          Switch vault
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button size="icon" className="rounded-full p-0">
+            <CustomAvatar />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem onClick={switchToVaultSelector}>
+            <i className="ri-folder-shared-line mr-2" />
+            Switch vault
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => setMcpSheetOpen(true)}>
+            <i className="ri-server-line mr-2" />
+            MCP Setup
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <Sheet open={mcpSheetOpen} onOpenChange={setMcpSheetOpen}>
+        <SheetContent shouldShowCloseButton side="right" className="space-y-4 p-3">
+          <SheetTitle>MCP Setup</SheetTitle>
+          <SheetDescription className="text-xs text-gray-5 dark:text-dark-gray-3">
+            Connect MCP-compatible tools to Codixie
+          </SheetDescription>
+          <McpSetupPanel />
+        </SheetContent>
+      </Sheet>
+    </>
   );
 };
 

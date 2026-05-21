@@ -41,7 +41,7 @@ export default [
       "no-empty": ["error", { allowEmptyCatch: true }],
       "import/no-unresolved": [
         "error",
-        { ignore: ["uuid", "embla-carousel-react"] },
+        { ignore: ["uuid", "embla-carousel-react", "^@modelcontextprotocol/sdk/"] },
       ],
       "import/no-named-as-default-member": "off",
       "@typescript-eslint/no-empty-interface": "off",

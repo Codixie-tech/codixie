@@ -3,9 +3,21 @@ import Store from "electron-store";
 import path from "node:path";
 import { updateElectronApp } from "update-electron-app";
 import { registerIpcHandlers } from "./ipc";
+import { startCodixieHttpMcpServer, startCodixieMcpServer, type CodixieHttpMcpServer } from "./mcp/server";
 import { FileStore } from "./store";
 
 if (require("electron-squirrel-startup")) app.quit();
+
+const isMcpMode = process.argv.includes("--mcp");
+const isHeadlessMode = isMcpMode || process.argv.includes("--headless");
+
+if (isHeadlessMode) {
+  app.commandLine.appendSwitch("headless");
+  app.commandLine.appendSwitch("disable-gpu");
+  if (process.platform === "linux") {
+    app.commandLine.appendSwitch("ozone-platform", "headless");
+  }
+}
 
 app.disableHardwareAcceleration();
 
@@ -21,8 +33,37 @@ const electronStore = new Store<AppConfig>({
 });
 
 let mainWindow: BrowserWindow | null = null;
+let httpMcpServer: CodixieHttpMcpServer | null = null;
+
+function resolveDataPath(): string {
+  return (
+    electronStore.get("activeVaultPath") ||
+    electronStore.get("dataPath") ||
+    path.join(app.getPath("documents"), "Codixie")
+  );
+}
+
+async function startMcpMode(): Promise<void> {
+  const store = new FileStore(resolveDataPath());
+  await store.init({ createMissing: false });
+  await startCodixieMcpServer({ store, version: app.getVersion() });
+}
+
+async function startHttpMcpMode(store: FileStore): Promise<void> {
+  try {
+    const configuredPort = Number(process.env.CODIXIE_MCP_HTTP_PORT || 0);
+    httpMcpServer = await startCodixieHttpMcpServer({ store, version: app.getVersion(), port: configuredPort });
+  } catch (error) {
+    httpMcpServer = null;
+    console.error('Failed to start Codixie MCP HTTP server:', error);
+  }
+}
 
 const createWindow = async () => {
+  const store = new FileStore(resolveDataPath());
+  await store.init();
+  await startHttpMcpMode(store);
+
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
@@ -43,17 +84,7 @@ const createWindow = async () => {
     }
   });
 
-  let dataPath =
-    electronStore.get("activeVaultPath") || electronStore.get("dataPath");
-
-  if (!dataPath) {
-    dataPath = path.join(app.getPath("documents"), "Codixie");
-  }
-
-  const store = new FileStore(dataPath);
-  await store.init();
-
-  registerIpcHandlers(store, mainWindow, electronStore);
+  registerIpcHandlers(store, mainWindow, electronStore, () => httpMcpServer);
 
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
@@ -64,17 +95,32 @@ const createWindow = async () => {
   }
 };
 
-app.on("ready", () => {
-  createWindow().then(() => {
-    setupAutoUpdate();
-  });
+app.whenReady().then(async () => {
+  if (isMcpMode) {
+    await startMcpMode();
+    return;
+  }
+
+  await createWindow();
+  setupAutoUpdate();
+}).catch((error: unknown) => {
+  console.error(error);
+  app.exit(1);
 });
 
 app.on("window-all-closed", () => {
+  if (isMcpMode) return;
   if (process.platform !== "darwin") app.quit();
 });
 
+app.on("before-quit", () => {
+  if (!httpMcpServer) return;
+  void httpMcpServer.close();
+  httpMcpServer = null;
+});
+
 app.on("activate", () => {
+  if (isMcpMode) return;
   if (mainWindow === null) createWindow();
 });
 

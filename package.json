@@ -14,7 +14,10 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "eslint --ext .ts,.tsx ."
+    "lint": "eslint --ext .ts,.tsx .",
+    "smoke:mcp": "node scripts/smoke-mcp.mjs",
+    "smoke:mcp:http": "node scripts/smoke-mcp-http.mjs",
+    "smoke:store-safety": "node scripts/smoke-store-safety.mjs"
   },
   "keywords": [],
   "author": {

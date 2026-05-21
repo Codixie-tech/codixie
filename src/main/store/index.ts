@@ -14,11 +14,21 @@ export class FileStore {
     this.dataPath = dataPath;
   }
 
-  async init(): Promise<boolean> {
+  async init(options: { createMissing?: boolean } = {}): Promise<boolean> {
+    const createMissing = options.createMissing ?? true;
     const codixiePath = path.join(this.dataPath, 'codixie');
     const metaPath = path.join(codixiePath, 'meta.json');
     const tagsPath = path.join(codixiePath, 'tags');
     const snippetsPath = path.join(codixiePath, 'snippets');
+
+    if (!createMissing) {
+      if (existsSync(metaPath)) {
+        this.meta = await this.readJsonFile<AppMeta>(metaPath);
+        return false;
+      }
+      this.meta = null;
+      return true;
+    }
 
     if (!existsSync(codixiePath)) {
       await fs.mkdir(codixiePath, { recursive: true });
@@ -117,26 +127,26 @@ export class FileStore {
   }
 
   async getTag(id: string): Promise<ClientTag | null> {
-    const filePath = path.join(this.dataPath, 'codixie', 'tags', `${id}.json`);
+    const filePath = this.getTagPath(id);
     if (!existsSync(filePath)) return null;
     return this.readJsonFile<ClientTag>(filePath);
   }
 
   async createTag(tag: ClientTag): Promise<ClientTag> {
-    const filePath = path.join(this.dataPath, 'codixie', 'tags', `${tag.id}.json`);
+    const filePath = this.getTagPath(tag.id);
     await this.writeJsonFileAtomic(filePath, tag);
     return tag;
   }
 
   async updateTag(tag: ClientTag): Promise<ClientTag> {
     tag = { ...tag, updatedAt: new Date().toISOString(), versionHash: uid() };
-    const filePath = path.join(this.dataPath, 'codixie', 'tags', `${tag.id}.json`);
+    const filePath = this.getTagPath(tag.id);
     await this.writeJsonFileAtomic(filePath, tag);
     return tag;
   }
 
   async deleteTag(id: string): Promise<void> {
-    const filePath = path.join(this.dataPath, 'codixie', 'tags', `${id}.json`);
+    const filePath = this.getTagPath(id);
     if (existsSync(filePath)) {
       this.markRecentlyWritten(filePath);
       await fs.unlink(filePath);
@@ -148,13 +158,13 @@ export class FileStore {
   }
 
   async getSnippet(id: string): Promise<ClientCodeSnippet | null> {
-    const filePath = path.join(this.dataPath, 'codixie', 'snippets', `${id}.json`);
+    const filePath = this.getSnippetPath(id);
     if (!existsSync(filePath)) return null;
     return this.readJsonFile<ClientCodeSnippet>(filePath);
   }
 
   async createSnippet(snippet: ClientCodeSnippet): Promise<ClientCodeSnippet> {
-    const filePath = path.join(this.dataPath, 'codixie', 'snippets', `${snippet.id}.json`);
+    const filePath = this.getSnippetPath(snippet.id);
     await this.writeJsonFileAtomic(filePath, snippet);
     return snippet;
   }
@@ -167,7 +177,7 @@ export class FileStore {
       updatedAt: new Date().toISOString(),
       versionHash: uid(),
     };
-    const filePath = path.join(this.dataPath, 'codixie', 'snippets', `${snippet.id}.json`);
+    const filePath = this.getSnippetPath(snippet.id);
     await this.writeJsonFileAtomic(filePath, snippet);
     return snippet;
   }
@@ -178,7 +188,7 @@ export class FileStore {
     snippet.deletedAt = new Date().toISOString();
     snippet.updatedAt = new Date().toISOString();
     snippet.versionHash = uid();
-    const filePath = path.join(this.dataPath, 'codixie', 'snippets', `${id}.json`);
+    const filePath = this.getSnippetPath(id);
     await this.writeJsonFileAtomic(filePath, snippet);
     return snippet;
   }
@@ -189,13 +199,13 @@ export class FileStore {
     snippet.deletedAt = null;
     snippet.updatedAt = new Date().toISOString();
     snippet.versionHash = uid();
-    const filePath = path.join(this.dataPath, 'codixie', 'snippets', `${id}.json`);
+    const filePath = this.getSnippetPath(id);
     await this.writeJsonFileAtomic(filePath, snippet);
     return snippet;
   }
 
   async permanentlyDeleteSnippet(id: string): Promise<void> {
-    const filePath = path.join(this.dataPath, 'codixie', 'snippets', `${id}.json`);
+    const filePath = this.getSnippetPath(id);
     if (existsSync(filePath)) {
       this.markRecentlyWritten(filePath);
       await fs.unlink(filePath);
@@ -208,7 +218,7 @@ export class FileStore {
     snippet.comments.push(comment);
     snippet.updatedAt = new Date().toISOString();
     snippet.versionHash = uid();
-    const filePath = path.join(this.dataPath, 'codixie', 'snippets', `${snippetId}.json`);
+    const filePath = this.getSnippetPath(snippetId);
     await this.writeJsonFileAtomic(filePath, snippet);
   }
 
@@ -218,7 +228,7 @@ export class FileStore {
     snippet.comments = snippet.comments.map((c) => (c.id === comment.id ? comment : c));
     snippet.updatedAt = new Date().toISOString();
     snippet.versionHash = uid();
-    const filePath = path.join(this.dataPath, 'codixie', 'snippets', `${snippetId}.json`);
+    const filePath = this.getSnippetPath(snippetId);
     await this.writeJsonFileAtomic(filePath, snippet);
   }
 
@@ -228,7 +238,7 @@ export class FileStore {
     snippet.comments = snippet.comments.filter((c) => c.id !== commentId);
     snippet.updatedAt = new Date().toISOString();
     snippet.versionHash = uid();
-    const filePath = path.join(this.dataPath, 'codixie', 'snippets', `${snippetId}.json`);
+    const filePath = this.getSnippetPath(snippetId);
     await this.writeJsonFileAtomic(filePath, snippet);
   }
 
@@ -247,10 +257,10 @@ export class FileStore {
     }
 
     for (const tag of data.tags) {
-      await this.writeJsonFileAtomic(path.join(tagsDir, `${tag.id}.json`), tag);
+      await this.writeJsonFileAtomic(this.getTagPath(tag.id), tag);
     }
     for (const snippet of data.snippets) {
-      await this.writeJsonFileAtomic(path.join(snippetsDir, `${snippet.id}.json`), snippet);
+      await this.writeJsonFileAtomic(this.getSnippetPath(snippet.id), snippet);
     }
   }
 
@@ -263,19 +273,13 @@ export class FileStore {
 
     for (const tag of data.tags) {
       if (!existingTagIds.has(tag.id)) {
-        await this.writeJsonFileAtomic(
-          path.join(this.dataPath, 'codixie', 'tags', `${tag.id}.json`),
-          tag,
-        );
+        await this.writeJsonFileAtomic(this.getTagPath(tag.id), tag);
       }
     }
 
     for (const snippet of data.snippets) {
       if (!existingSnippetIds.has(snippet.id)) {
-        await this.writeJsonFileAtomic(
-          path.join(this.dataPath, 'codixie', 'snippets', `${snippet.id}.json`),
-          snippet,
-        );
+        await this.writeJsonFileAtomic(this.getSnippetPath(snippet.id), snippet);
       }
     }
   }
@@ -302,6 +306,42 @@ export class FileStore {
     await fs.writeFile(tmpPath, JSON.stringify(data, null, 2), 'utf-8');
     await fs.rename(tmpPath, filePath);
     this.markRecentlyWritten(filePath);
+  }
+
+  private getTagPath(id: string): string {
+    return this.getEntityFilePath(path.join(this.dataPath, 'codixie', 'tags'), id);
+  }
+
+  private getSnippetPath(id: string): string {
+    return this.getEntityFilePath(path.join(this.dataPath, 'codixie', 'snippets'), id);
+  }
+
+  private getEntityFilePath(entityDir: string, id: string): string {
+    if (!this.isSafeEntityId(id)) {
+      throw new Error(`Invalid entity id: ${id}`);
+    }
+
+    const resolvedDir = path.resolve(entityDir);
+    const resolvedPath = path.resolve(resolvedDir, `${id}.json`);
+    const relativePath = path.relative(resolvedDir, resolvedPath);
+
+    if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+      throw new Error(`Invalid entity id: ${id}`);
+    }
+
+    return resolvedPath;
+  }
+
+  private isSafeEntityId(id: string): boolean {
+    if (!id || id === '.' || id === '..' || id.includes('\0')) return false;
+    let decoded = id;
+    try {
+      decoded = decodeURIComponent(id);
+    } catch {
+      return false;
+    }
+
+    return decoded === id && !/[\\/]/.test(id) && id !== '.' && id !== '..';
   }
 
   private async readJsonFile<T>(filePath: string): Promise<T> {
