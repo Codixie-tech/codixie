@@ -68,7 +68,7 @@ const createWindow = async () => {
     width: 1200,
     height: 800,
     title: "Codixie",
-    icon: path.join(__dirname, "logo.png"),
+    icon: path.join(__dirname, process.platform === "win32" ? "logo.ico" : "logo.png"),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,

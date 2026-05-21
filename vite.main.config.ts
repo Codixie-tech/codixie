@@ -17,6 +17,7 @@ export default defineConfig({
       closeBundle() {
         const outDir = path.resolve(__dirname, '.vite/build');
         copyFileSync(path.resolve(__dirname, 'logo.png'), path.join(outDir, 'logo.png'));
+        copyFileSync(path.resolve(__dirname, 'logo.ico'), path.join(outDir, 'logo.ico'));
       },
     },
   ],
