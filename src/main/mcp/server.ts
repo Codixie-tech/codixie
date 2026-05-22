@@ -1,7 +1,7 @@
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
-import { createServer, type IncomingMessage, type Server as HttpServer, type ServerResponse } from 'node:http';
+import { Socket } from 'node:net';
+import { createWriteStream } from 'node:fs';
 import { z } from 'zod';
 import type { CallToolResult, ReadResourceResult } from '@modelcontextprotocol/sdk/types.js';
 import type { FileStore } from '../store';
@@ -10,13 +10,6 @@ import type { ClientCodeSnippet, ClientTag } from '../../shared/types';
 type CodixieMcpOptions = {
   store: FileStore;
   version: string;
-};
-
-export type CodixieHttpMcpServer = {
-  host: string;
-  port: number;
-  url: string;
-  close: () => Promise<void>;
 };
 
 const readOnlyAnnotations = {
@@ -32,49 +25,10 @@ const safeEntityIdSchema = z.string().min(1).refine(isSafeEntityId, {
 
 export async function startCodixieMcpServer(options: CodixieMcpOptions): Promise<void> {
   const server = createCodixieMcpServer(options);
-  const transport = new StdioServerTransport();
+  const stdin = new Socket({ fd: 0, readable: true, writable: false });
+  const stdout = createWriteStream(null, { fd: 1 });
+  const transport = new StdioServerTransport(stdin, stdout);
   await server.connect(transport);
-}
-
-export async function startCodixieHttpMcpServer(
-  options: CodixieMcpOptions & { host?: string; port?: number },
-): Promise<CodixieHttpMcpServer> {
-  const host = options.host ?? '127.0.0.1';
-  const requestedPort = options.port ?? 0;
-
-  const httpServer = createServer(async (req, res) => {
-    try {
-      await handleMcpHttpRequest(req, res, options);
-    } catch (error) {
-      console.error(error);
-      if (!res.headersSent) {
-        res.writeHead(500, { 'content-type': 'application/json' });
-        res.end(JSON.stringify({ jsonrpc: '2.0', error: { code: -32603, message: 'Internal server error' }, id: null }));
-      }
-    }
-  });
-
-  await new Promise<void>((resolve, reject) => {
-    httpServer.once('error', reject);
-    httpServer.listen(requestedPort, host, () => {
-      httpServer.off('error', reject);
-      resolve();
-    });
-  });
-
-  const address = httpServer.address();
-  if (!address || typeof address === 'string') {
-    await closeHttpServer(httpServer);
-    throw new Error('Failed to determine MCP HTTP server address.');
-  }
-
-  const url = `http://${host}:${address.port}/mcp`;
-  return {
-    host,
-    port: address.port,
-    url,
-    close: () => closeHttpServer(httpServer),
-  };
 }
 
 export function createCodixieMcpServer({ store, version }: CodixieMcpOptions): McpServer {
@@ -225,67 +179,6 @@ export function createCodixieMcpServer({ store, version }: CodixieMcpOptions): M
   );
 
   return server;
-}
-
-async function handleMcpHttpRequest(
-  req: IncomingMessage,
-  res: ServerResponse,
-  options: CodixieMcpOptions,
-): Promise<void> {
-  if (req.url !== '/mcp') {
-    res.writeHead(404).end('Not found');
-    return;
-  }
-
-  if (req.method !== 'POST') {
-    res.writeHead(405, { 'content-type': 'application/json' });
-    res.end(JSON.stringify({ jsonrpc: '2.0', error: { code: -32000, message: 'Method not allowed.' }, id: null }));
-    return;
-  }
-
-  const server = createCodixieMcpServer(options);
-  const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
-  await server.connect(transport);
-  try {
-    await transport.handleRequest(req, res, await readJsonBody(req));
-  } finally {
-    await transport.close();
-    await server.close();
-  }
-}
-
-function readJsonBody(req: IncomingMessage): Promise<unknown> {
-  return new Promise((resolve, reject) => {
-    let body = '';
-    req.setEncoding('utf8');
-    req.on('data', (chunk: string) => {
-      body += chunk;
-      if (body.length > 1_000_000) {
-        reject(new Error('MCP request body is too large.'));
-      }
-    });
-    req.on('end', () => {
-      if (!body) {
-        resolve(undefined);
-        return;
-      }
-      try {
-        resolve(JSON.parse(body));
-      } catch (error) {
-        reject(error);
-      }
-    });
-    req.on('error', reject);
-  });
-}
-
-function closeHttpServer(server: HttpServer): Promise<void> {
-  return new Promise((resolve, reject) => {
-    server.close((error) => {
-      if (error) reject(error);
-      else resolve();
-    });
-  });
 }
 
 async function getVaultInfo(store: FileStore) {

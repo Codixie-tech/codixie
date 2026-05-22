@@ -16,7 +16,6 @@
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
     "smoke:mcp": "node scripts/smoke-mcp.mjs",
-    "smoke:mcp:http": "node scripts/smoke-mcp-http.mjs",
     "smoke:store-safety": "node scripts/smoke-store-safety.mjs"
   },
   "keywords": [],
@@ -49,8 +48,6 @@
     "@vitejs/plugin-react": "^6.0.2",
     "electron": "^42.2.0",
     "eslint": "^10.4.0",
-    "eslint-import-resolver-typescript": "^4.4.4",
-    "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "tailwindcss": "^4.3.0",
     "tw-animate-css": "^1.4.0",

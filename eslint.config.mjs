@@ -1,6 +1,5 @@
 import tseslint from "@typescript-eslint/eslint-plugin";
 import tsparser from "@typescript-eslint/parser";
-import importPlugin from "eslint-plugin-import";
 import reactHooks from "eslint-plugin-react-hooks";
 
 export default [
@@ -26,24 +25,11 @@ export default [
     },
     plugins: {
       "@typescript-eslint": tseslint,
-      import: importPlugin,
       "react-hooks": reactHooks,
-    },
-    settings: {
-      "import/resolver": {
-        typescript: {
-          alwaysTryTypes: true,
-        },
-      },
     },
     rules: {
       ...tseslint.configs.recommended.rules,
       "no-empty": ["error", { allowEmptyCatch: true }],
-      "import/no-unresolved": [
-        "error",
-        { ignore: ["uuid", "embla-carousel-react", "^@modelcontextprotocol/sdk/"] },
-      ],
-      "import/no-named-as-default-member": "off",
       "@typescript-eslint/no-empty-interface": "off",
       "@typescript-eslint/no-empty-object-type": "off",
       "@typescript-eslint/no-require-imports": "off",
@@ -67,10 +53,5 @@ export default [
   },
   {
     files: ["vite.*.ts", "forge.config.ts"],
-    rules: {
-      "import/no-unresolved": "off",
-      "import/default": "off",
-      "import/namespace": "off",
-    },
   },
 ];

@@ -5,7 +5,6 @@ import { FileWatcher } from '../watcher';
 import { importFromWebExport, exportToWebFormat } from '../store/importExport';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import type { CodixieHttpMcpServer } from '../mcp/server';
 
 type AppConfig = {
   dataPath: string;
@@ -22,7 +21,6 @@ export function registerIpcHandlers(
   store: FileStore,
   mainWindow: BrowserWindow,
   configStore: ConfigStore,
-  getHttpMcpServer?: () => CodixieHttpMcpServer | null,
 ) {
   const watcher = new FileWatcher(store);
 
@@ -203,50 +201,20 @@ export function registerIpcHandlers(
     }
   });
 
-  // MCP
   ipcMain.handle(IPC_CHANNELS.MCP_GET_CONFIG, async () => {
-    const execPath = process.execPath;
-    const httpServer = getHttpMcpServer?.() ?? null;
-    const stdio = {
-      command: execPath,
-      args: ['--mcp'],
-      config: JSON.stringify(
-        {
-          mcpServers: {
-            codixie: {
-              command: execPath,
-              args: ['--mcp'],
-            },
+    const command = process.execPath;
+    const config = JSON.stringify(
+      {
+        mcpServers: {
+          codixie: {
+            command,
+            args: ['--mcp'],
           },
         },
-        null,
-        2,
-      ),
-    };
-    const http = httpServer
-      ? {
-          running: true,
-          host: httpServer.host,
-          port: httpServer.port,
-          url: httpServer.url,
-          config: JSON.stringify(
-            {
-              mcpServers: {
-                codixie: {
-                  url: httpServer.url,
-                },
-              },
-            },
-            null,
-            2,
-          ),
-        }
-      : { running: false, host: '127.0.0.1', port: null, url: null, config: null };
-
-    return {
-      ...stdio,
-      stdio,
-      http,
-    };
+      },
+      null,
+      2,
+    );
+    return { command, args: ['--mcp'], config };
   });
 }

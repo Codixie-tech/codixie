@@ -32,18 +32,6 @@ type McpConfigResult = {
   command: string;
   args: string[];
   config: string;
-  stdio: {
-    command: string;
-    args: string[];
-    config: string;
-  };
-  http: {
-    running: boolean;
-    host: string;
-    port: number | null;
-    url: string | null;
-    config: string | null;
-  };
 };
 
 const api = {

@@ -125,23 +125,12 @@ type McpConfigResult = {
   command: string;
   args: string[];
   config: string;
-  stdio: {
-    command: string;
-    args: string[];
-    config: string;
-  };
-  http: {
-    running: boolean;
-    host: string;
-    port: number | null;
-    url: string | null;
-    config: string | null;
-  };
 };
 
 const McpSetupPanel = () => {
   const [config, setConfig] = useState<McpConfigResult | null>(null);
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     window.codixieAPI.mcp
@@ -153,9 +142,11 @@ const McpSetupPanel = () => {
       .catch(() => setLoading(false));
   }, []);
 
-  const copy = async (text: string, label: string) => {
+  const copy = async (text: string) => {
     await navigator.clipboard.writeText(text);
-    toast(`${label} copied to clipboard`);
+    setCopied(true);
+    toast('Config copied to clipboard');
+    setTimeout(() => setCopied(false), 2000);
   };
 
   if (loading) {
@@ -175,44 +166,14 @@ const McpSetupPanel = () => {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <h3 className="text-sm font-semibold">HTTP Server</h3>
-        {config.http.running && config.http.url ? (
-          <>
-            <div className="flex items-center gap-2 rounded bg-gray-2 p-2 dark:bg-dark-gray-5">
-              <code className="min-w-0 flex-1 break-all text-xs">{config.http.url}</code>
-              <Button className="h-7 w-auto px-2" size="sm" variant="styleLess" onClick={() => void copy(config.http.url!, 'URL')}>
-                Copy URL
-              </Button>
-            </div>
-            {config.http.config && (
-              <div className="space-y-2">
-                <pre className="overflow-auto rounded bg-gray-2 p-2 text-xs dark:bg-dark-gray-5">
-                  {config.http.config}
-                </pre>
-                <Button className="h-7 w-auto px-2" size="sm" variant="styleLess" onClick={() => void copy(config.http.config!, 'HTTP config')}>
-                  Copy HTTP config
-                </Button>
-              </div>
-            )}
-          </>
-        ) : (
-          <p className="text-xs text-gray-5 dark:text-dark-gray-3">Not running</p>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        <h3 className="text-sm font-semibold">Stdio</h3>
-        <div className="space-y-2">
-          <pre className="overflow-auto rounded bg-gray-2 p-2 text-xs dark:bg-dark-gray-5">
-            {config.stdio.config}
-          </pre>
-          <Button className="h-7 w-auto px-2" size="sm" variant="styleLess" onClick={() => void copy(config.stdio.config, 'Stdio config')}>
-            Copy stdio config
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-2">
+      <h3 className="text-sm font-semibold">Stdio</h3>
+      <pre className="overflow-auto rounded bg-gray-2 p-2 text-xs dark:bg-dark-gray-5">
+        {config.config}
+      </pre>
+      <Button className="h-7 w-auto px-2" size="sm" variant="styleLess" onClick={() => void copy(config.config)}>
+        {copied ? 'Copied!' : 'Copy stdio config'}
+      </Button>
     </div>
   );
 };

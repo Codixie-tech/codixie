@@ -17,7 +17,7 @@ A desktop app for developers to store, organize, and quickly access code snippet
 - **Conflict resolution** -- If a sync service creates duplicate files, Codixie detects them on load and auto-resolves by assigning new IDs.
 - **File watching** -- External changes to the vault folder are picked up in real time via `chokidar`.
 - **Dark and light themes** -- Toggle between themes with the mode switcher.
-- **MCP server** -- Expose your snippets to AI tools via the [Model Context Protocol](https://modelcontextprotocol.io/). Codixie runs a read-only MCP server (stdio and HTTP transports) so LLMs can query your vault without modifying it.
+- **MCP server** -- Expose your snippets to AI tools via the [Model Context Protocol](https://modelcontextprotocol.io/). Codixie runs a read-only MCP server (stdio transport) so LLMs can query your vault without modifying it.
 - **Cross-platform** -- Ships as `.exe` (Windows), `.dmg` (macOS), and `.AppImage` (Linux).
 
 ## Getting Started
@@ -56,12 +56,6 @@ Codixie exposes an MCP server so AI assistants and other MCP clients can read yo
 
 ```bash
 codixie --mcp
-```
-
-**HTTP transport** (starts automatically when the GUI launches, bound to `127.0.0.1` on a random port):
-
-```bash
-CODIXIE_MCP_HTTP_PORT=4200 codixie
 ```
 
 ### Available tools

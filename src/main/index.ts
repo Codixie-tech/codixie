@@ -3,7 +3,7 @@ import Store from "electron-store";
 import path from "node:path";
 import { updateElectronApp } from "update-electron-app";
 import { registerIpcHandlers } from "./ipc";
-import { startCodixieHttpMcpServer, startCodixieMcpServer, type CodixieHttpMcpServer } from "./mcp/server";
+import { startCodixieMcpServer } from "./mcp/server";
 import { FileStore } from "./store";
 
 if (require("electron-squirrel-startup")) app.quit();
@@ -33,7 +33,6 @@ const electronStore = new Store<AppConfig>({
 });
 
 let mainWindow: BrowserWindow | null = null;
-let httpMcpServer: CodixieHttpMcpServer | null = null;
 
 function resolveDataPath(): string {
   return (
@@ -49,20 +48,9 @@ async function startMcpMode(): Promise<void> {
   await startCodixieMcpServer({ store, version: app.getVersion() });
 }
 
-async function startHttpMcpMode(store: FileStore): Promise<void> {
-  try {
-    const configuredPort = Number(process.env.CODIXIE_MCP_HTTP_PORT || 0);
-    httpMcpServer = await startCodixieHttpMcpServer({ store, version: app.getVersion(), port: configuredPort });
-  } catch (error) {
-    httpMcpServer = null;
-    console.error('Failed to start Codixie MCP HTTP server:', error);
-  }
-}
-
 const createWindow = async () => {
   const store = new FileStore(resolveDataPath());
   await store.init();
-  await startHttpMcpMode(store);
 
   mainWindow = new BrowserWindow({
     width: 1200,
@@ -84,7 +72,7 @@ const createWindow = async () => {
     }
   });
 
-  registerIpcHandlers(store, mainWindow, electronStore, () => httpMcpServer);
+  registerIpcHandlers(store, mainWindow, electronStore);
 
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
@@ -111,12 +99,6 @@ app.whenReady().then(async () => {
 app.on("window-all-closed", () => {
   if (isMcpMode) return;
   if (process.platform !== "darwin") app.quit();
-});
-
-app.on("before-quit", () => {
-  if (!httpMcpServer) return;
-  void httpMcpServer.close();
-  httpMcpServer = null;
 });
 
 app.on("activate", () => {
